@@ -1,0 +1,66 @@
+﻿@model LibraryManagementSystem.Models.Book
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div class="row">
+    <div class="col-sm-8 col-md-6">
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.PublicationYear)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.PublicationYear)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Author)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Author)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Quantity)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Quantity)
+            </dd>
+
+            <dt>
+                @Html.DisplayNameFor(model => model.Isbn)
+            </dt>
+
+            <dd>
+                @Html.DisplayFor(model => model.Isbn)
+            </dd>
+
+        </dl>
+
+        <div class="row">
+            <div class="col-xs-6">
+                @Html.ActionLink("Back to List", "Index", "LibraryItems")
+            </div>
+            <div class="col-xs-6">
+                @Html.ActionLink("Edit", "Edit", new {id = Model.Id}, new {@class = "btn btn-warning"})
+                @Html.ActionLink("Delete", "Delete", new { id = Model.Id }, new { @class = "btn btn-danger" })
+            </div>
+        </div>
+
+    </div>
+</div>

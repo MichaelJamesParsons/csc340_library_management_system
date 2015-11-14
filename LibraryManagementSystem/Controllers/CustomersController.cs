@@ -1,0 +1,188 @@
+﻿using System;
+using System.Data.Entity;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Web.Mvc;
+using LibraryManagementSystem.DAL;
+using LibraryManagementSystem.DAL.Interfaces;
+using LibraryManagementSystem.Models;
+
+namespace LibraryManagementSystem.Controllers
+{
+    public class CustomersController : Controller
+    {
+        private readonly ICustomerRepository _customerRepo;
+        private readonly IReservationRepository _reservationRepo;
+        private LibraryDataContext db = new LibraryDataContext();
+
+        public CustomersController(ICustomerRepository customerRepo, IReservationRepository reservationRepository)
+        {
+            this._customerRepo = customerRepo;
+            this._reservationRepo = reservationRepository;
+        }
+
+        //GET: Customers/Find
+        public ActionResult Find()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Find(FormCollection form)
+        {
+            var customerNumber = Request.Form["customerNumber"];
+            if (customerNumber != null && !customerNumber.Equals("") && Regex.IsMatch(customerNumber, @"^(901)[0-9]{6}$"))
+            {
+                var customer = this._customerRepo.FindCustomerByCustomerNumber(customerNumber);
+                if (customer != null)
+                {
+                    return RedirectToAction("Details", new {customer.Id});
+                }
+                else
+                {
+                    ModelState.AddModelError("customerNumber",
+                        "Sorry, there isn't a customer with that customer number.");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("customerNumber", "Please enter a valid 9 digit customer number.");
+            }
+
+            return View();
+        }
+
+        // GET: Customers
+        public ActionResult Index()
+        {
+            return View(_customerRepo.GetAll());
+        }
+
+        // GET: Customers/Details/5
+        public ActionResult Details(int id)
+        {
+            //var customer = _customerRepo.Find((int)id);
+            //var customer = _customerRepo.FindBy(s => s.Id == id).Include(s => s.Reservations).Include("Reservations.LibraryItem").FirstOrDefault();
+            var customer = _customerRepo.FindBy(s => s.Id == id).Include(s => s.Reservations).Include("Reservations.LibraryItem").FirstOrDefault();
+
+            Debug.WriteLine(customer.Reservations.Count);
+
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
+
+            ViewBag.reservations = customer.Reservations;
+            ViewBag.fullName = customer.GetFullName();
+            return View(customer);
+        }
+
+        // GET: Customers/Create
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Customers/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create([Bind(Include = "Id,CustomerNumber,FirstName,LastName,Email")] Customer customer)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _customerRepo.Add(customer);
+                    _customerRepo.Save();
+                    return RedirectToAction("Index");
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError(string.Empty, "Something went wrong.");
+                }
+            }
+
+            return View(customer);
+        }
+
+        // GET: Customers/Edit/5
+        public ActionResult Edit(int? id)
+        {
+            var customer = this._customerRepo.Find((int) id);
+
+            if (customer == null)
+            {
+                HttpNotFound();
+            }
+
+            return View(customer);
+
+        }
+
+        // POST: Customers/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit([Bind(Include = "Id,CustomerNumber,FirstName,LastName,Email")] Customer customer)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _customerRepo.Edit(customer);
+                    _customerRepo.Save();
+                    return RedirectToAction("Index");
+                }
+                catch (Exception)
+                {
+                    ModelState.AddModelError(string.Empty, "Something went wrong.");
+                }
+            }
+
+            return View(customer);
+        }
+
+        // GET: Customers/Delete/5
+        public ActionResult Delete(int? id)
+        {
+            var customer = _customerRepo.Find((int)id);
+
+            if (customer == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(customer);
+        }
+
+        // POST: Customers/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int id)
+        {
+            var customer = _customerRepo.Find(id);
+
+            if (customer != null)
+            {
+                _customerRepo.Delete(customer);
+                _customerRepo.Save();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+    }
+}

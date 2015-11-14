@@ -1,0 +1,94 @@
+﻿@using LibraryManagementSystem.Models
+@model LibraryManagementSystem.Models.Customer
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="row">
+    <div class="col-sm-8">
+        <h1>@ViewBag.FullName</h1>
+        <p>@Html.DisplayFor(model => model.Email)</p>
+    </div>
+    <div class="col-sm-4">
+        <br/>
+        <h3>Customer #: @Html.DisplayFor(model => model.CustomerNumber)</h3>
+    </div>
+</div>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+
+<h2>Library Item Reservations</h2>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="item-list">
+                    @{
+                        if (@ViewBag.reservations != null)
+                        {
+                            foreach (var r in Model.Reservations)
+                            {
+                                @Html.DisplayFor(x => r, "reservation_list_item")
+                            }
+                        }
+                        else
+                        {
+                            <h3 class="text-center">You have not reserved any items yet.</h3>
+                        }
+                    }
+
+                    <div class="row">
+                        <div class="col-sm-6 col-sm-offset-3">
+                            <div class="text-center">
+                                <button data-toggle="modal" data-target="#reservation-modal" class="btn btn-success btn-block btn-lg">
+                                    Add Item <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Item Reservation Modal -->
+<div id="reservation-modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Reserve Item</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alerts-container"></div>
+                <form id="reserve-item-form">
+                    <div class="form-group">
+                        <label>Item ID</label>
+                        <input type="text" name="item_id" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="is_reserved"/> Reserve Item instead of checkout
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" 
+                        data-action="reserve_item" data-customer-id="@Html.DisplayFor(model => model.Id)">
+                    Complete
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!-- /Item Reservation Modal -->

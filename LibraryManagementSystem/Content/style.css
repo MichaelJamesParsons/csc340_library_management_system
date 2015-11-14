@@ -1,0 +1,101 @@
+#top-bar {
+    color: #fff;
+    background-color: #19495B;
+}
+
+#top-bar .navbar-header {
+    margin-top: 15px;
+}
+
+#top-bar .navbar-brand,
+#top-bar .nav > li > a {
+    color: #fff;
+}
+
+#top-bar .nav {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+#top-bar .nav > li > a:hover,
+#top-bar .nav > li > a:visited {
+    background-color: #236780;
+}
+
+#sidebar {
+    top: 29px;
+    background-color: #fff;
+}
+
+#sidebar #side-menu{
+    background-color: #fff;
+}
+
+#sidebar #side-menu li a {
+    color: #666;
+    background-color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+body {
+    background-color: #fff;
+    height: 100%;
+}
+
+html {
+    height: 100%;
+}
+
+.h1-btn {
+    text-align: right;
+}
+
+.h1-btn a {
+    margin-top: 26px;
+}
+
+@media (max-width: 767px) {
+    .h1-btn {
+        text-align: left;
+    }
+
+    .h1-btn a {
+        margin-top: 10px;
+    }
+}
+
+table.table tbody > tr > td {
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+table.table tbody > tr > td > a,
+table.table tbody > tr > td > button {
+    font-weight: normal;
+}
+
+#blue-body {
+    height: 100%;
+    background-color: #19495B;
+}
+
+.login-panel {
+    color: #fff;
+}
+
+#page-wrapper {
+    background: #f5f5f5;
+}
+
+
+.item-list > .item {
+    padding: 10px;
+    border-bottom: 1px solid #e1e1e1;
+    margin: 10px 0;
+}
+
+.item-list > .item p {
+    margin-top: 12px;
+    margin-bottom: 0;
+}
