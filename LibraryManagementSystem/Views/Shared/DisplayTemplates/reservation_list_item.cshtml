@@ -4,7 +4,7 @@
     ViewBag.Title = "reservation_list_item";
 }
 
-<div class="item">
+<div class="item" data-content="item" data-reservation-id="@Model.Id">
     <div class="row">
         <div class="col-xs-6">
             <p>@Model.LibraryItem.Title</p>
@@ -22,7 +22,9 @@
 
         </div>
         <div class="col-xs-12 col-sm-3 text-right">
-            <button class="action-btn btn btn-danger">Check In</button>
+            <button class="action-btn btn btn-danger"
+                    data-trigger="check-in"
+                    data-reservation-id="@Model.Id">Check In</button>
         </div>
     </div>
 </div>

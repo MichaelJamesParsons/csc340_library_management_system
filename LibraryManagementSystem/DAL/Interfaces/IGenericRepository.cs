@@ -13,5 +13,6 @@ namespace LibraryManagementSystem.DAL.Interfaces
         void Delete(T entity);
         void Edit(T entity);
         void Save();
+        void ReloadRepository(T entity);
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
-using System.Web.Script.Serialization;
 using LibraryManagementSystem.DAL;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
@@ -110,12 +107,32 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
             
-            if (customer.Reservations.Count > 0)
+            if (_reservationRepository.FindBy(i => i.LibraryItem_Id == item.Id)
+                                        .FirstOrDefault(c => c.Customer_Id == customer.Id) != null)
             {
                 return Json(new
                 {
                     status = false,
                     response = "This custom has already checked out this item."
+                });
+            }
+
+            if (customer.Reservations.Count >= 5)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Maximum checkout/reservation limit reached. Please return " +
+                               "an item or cancel a reservation before attempting to check out another item."
+                });
+            }
+
+            if (item.Quantity - _reservationRepository.CountItemReservations(item) == 0)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "There aren't any more copies of that item available."
                 });
             }
             
@@ -125,12 +142,11 @@ namespace LibraryManagementSystem.Controllers
                 CheckOutDate = DateTime.Today,
                 Customer_Id =  customer.Id,
                 LibraryItem_Id = item.Id
-                //Customer = customer,
-                //LibraryItem = item
             };
 
             _reservationRepository.Add(reservation);
             _reservationRepository.Save();
+            _reservationRepository.ReloadRepository(reservation);
            
             string responseMessage;
             if (isReserved)
@@ -145,7 +161,77 @@ namespace LibraryManagementSystem.Controllers
             return Json(new
             {
                 status = true,
-                response = responseMessage
+                response = new
+                {
+                    reservation = new
+                    {
+                        Id = reservation.Id,
+                        DueDate = reservation.GetDueDate(),
+                        IsReserved = reservation.IsReserved
+
+                    },
+                    item = new
+                    {
+                        Title = item.Title
+                    },
+                    message = responseMessage
+                }
+            });
+        }
+
+        [HttpPost]
+        public JsonResult Details()
+        {
+            Int32 id;
+
+            try
+            {
+                id = Int32.Parse(Request.Form["reservation_id"]);
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Oops! Something went wrong. Please refresh and try again."
+                });
+            }
+
+            var reservation = _reservationRepository.FindBy(i => i.Id == id)
+                                                        .Select(e => new
+                                                        {
+                                                            e,
+                                                            ItemId = e.LibraryItem.Id
+                                                        })
+                                                        .FirstOrDefault();
+
+            if (reservation == null)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Oops! Something went wrong. Please refresh and try again."
+                });
+            }
+
+            var reservedItem = _libraryItemRepository.Find(reservation.ItemId);
+
+            return Json(new
+            {
+                status = true,
+                response = new
+                {
+                    id = reservation.e.Id,
+                    checkOutDate = reservation.e.FormatCheckOutDate(),
+                    dueDate = reservation.e.GetDueDate(),
+                    lateFee = reservation.e.CalculateLateFee(),
+                    item = new
+                    {
+                        id = reservedItem.Id,
+                        title = reservedItem.Title,
+                        type = reservedItem.GetItemType()
+                    }
+                }
             });
         }
 
@@ -217,6 +303,32 @@ namespace LibraryManagementSystem.Controllers
                 return HttpNotFound();
             }
             return View(reservation);
+        }
+
+        [HttpPost]
+        public JsonResult AjaxDelete()
+        {
+            try
+            {
+                var id = int.Parse(Request.Form["id"]);
+                var reservation = _reservationRepository.Find(id);
+                _reservationRepository.Delete(reservation);
+                _reservationRepository.Save();
+
+                return Json(new
+                {
+                    status = true,
+                    response = "Item successfully checked in."
+                });
+            }
+            catch (Exception)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Oops! Something went wrong. Please refresh and try again."
+                });
+            }
         }
 
         // POST: Reservations/Delete/5

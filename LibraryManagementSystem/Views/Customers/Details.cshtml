@@ -12,7 +12,7 @@
     </div>
     <div class="col-sm-4">
         <br/>
-        <h3>Customer #: @Html.DisplayFor(model => model.CustomerNumber)</h3>
+        <h3 class="text-right">Customer #: @Html.DisplayFor(model => model.CustomerNumber)</h3>
     </div>
 </div>
 
@@ -23,13 +23,14 @@
 
 
 <h2>Library Item Reservations</h2>
+<div id="page-alerts" class="alerts-container"></div>
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-default">
             <div class="panel-body">
-                <div class="item-list">
+                <div id="reserved-items" class="item-list">
                     @{
-                        if (@ViewBag.reservations != null)
+                        if (Model.Reservations != null && Model.Reservations.Count > 0)
                         {
                             foreach (var r in Model.Reservations)
                             {
@@ -38,17 +39,16 @@
                         }
                         else
                         {
-                            <h3 class="text-center">You have not reserved any items yet.</h3>
+                            <h3 id="empty-reservation-notice" class="text-center">This customer has not reserved any items yet.</h3>
                         }
                     }
-
-                    <div class="row">
-                        <div class="col-sm-6 col-sm-offset-3">
-                            <div class="text-center">
-                                <button data-toggle="modal" data-target="#reservation-modal" class="btn btn-success btn-block btn-lg">
-                                    Add Item <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 col-sm-offset-3">
+                        <div class="text-center">
+                            <button data-toggle="modal" data-target="#reservation-modal" class="btn btn-success btn-block btn-lg">
+                                <b>Check Out/Reserve Item</b> <i class="fa fa-plus"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -88,7 +88,53 @@
                     Complete
                 </button>
             </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+        </div>
+    </div>
+</div>
 <!-- /Item Reservation Modal -->
+
+
+<!-- Item Check-In Model -->
+<div id="check-in-model" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Check-In Item</h4>
+            </div>
+            <div class="modal-body">
+                <div class="loader-container">
+                    <span class="spinner"></span>
+                    <div class="overlay"></div>
+                </div>
+                <div class="alerts-container"></div>
+                <h3>
+                    Item Name: "<span data-content="check-in-item-name"></span>"
+                </h3>
+                <p><b>Type:</b> <span data-content="item-type"></span></p>
+                <p><b>Due:</b> <span data-content="due-date"></span></p>
+
+                <div class="text-center form-group">
+                    <p class="super-text">
+                        <span>
+                            $<span data-content="late-fee"></span>
+                        </span>
+                    </p>
+                    <h3 class="super-text-label">Late Fee</h3>
+                </div>
+                <br/><br/>
+                <p data-content="fee-notice" style="display: none;">
+                    <b class="text-danger">** Notice:</b> Collect late fee before confirming check-in.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" 
+                        data-action="check_in_item" data-reservation-id="">
+                    Confirm <i class="fa fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Item Check-In Model -->

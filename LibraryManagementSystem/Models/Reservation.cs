@@ -24,7 +24,26 @@ namespace LibraryManagementSystem.Models
 
         public string GetDueDate()
         {
-            return CheckOutDate.AddDays(7).ToString("dd.MM.yy");
+            return CheckOutDate.AddDays(7).ToString("MM/dd/yy");
+        }
+
+        public string FormatCheckOutDate(string structure = "")
+        {
+            structure = (structure != "") ? structure : "MM/dd/yy";
+            return CheckOutDate.ToString(structure);
+        }
+
+        public double CalculateLateFee()
+        {
+            var currentDate = DateTime.Today.Date;
+            var dueDate = DateTime.Parse(this.GetDueDate());
+
+            if (currentDate > dueDate)
+            {
+                return (currentDate - dueDate).TotalDays;
+            }
+
+            return 0;
         }
     }
 }

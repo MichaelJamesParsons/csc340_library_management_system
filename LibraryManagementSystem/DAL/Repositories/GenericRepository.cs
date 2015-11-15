@@ -49,7 +49,20 @@ namespace LibraryManagementSystem.DAL.Repositories
 
         public virtual void Save()
         {
-            _entities.SaveChanges();
+            try
+            {
+                _entities.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                while (e.InnerException != null) e = e.InnerException;
+                throw e;
+            }
+        }
+
+        public virtual void ReloadRepository(T entity)
+        {
+            Context.Entry(entity).GetDatabaseValues();
         }
     }
 }

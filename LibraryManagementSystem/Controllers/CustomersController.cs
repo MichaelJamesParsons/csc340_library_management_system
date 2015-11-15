@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,19 +8,18 @@ using System.Web.Mvc;
 using LibraryManagementSystem.DAL;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
+using MySql.Data.MySqlClient;
 
 namespace LibraryManagementSystem.Controllers
 {
     public class CustomersController : Controller
     {
         private readonly ICustomerRepository _customerRepo;
-        private readonly IReservationRepository _reservationRepo;
         private LibraryDataContext db = new LibraryDataContext();
 
         public CustomersController(ICustomerRepository customerRepo, IReservationRepository reservationRepository)
         {
             this._customerRepo = customerRepo;
-            this._reservationRepo = reservationRepository;
         }
 
         //GET: Customers/Find
@@ -57,7 +57,10 @@ namespace LibraryManagementSystem.Controllers
         // GET: Customers
         public ActionResult Index()
         {
-            return View(_customerRepo.GetAll());
+            var customers = _customerRepo.GetAll();
+            @ViewBag.customersExist = (customers != null && customers.Any());
+
+            return View(customers);
         }
 
         // GET: Customers/Details/5
@@ -148,9 +151,9 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: Customers/Delete/5
-        public ActionResult Delete(int? id)
+        public ActionResult Delete(int id)
         {
-            var customer = _customerRepo.Find((int)id);
+            var customer = _customerRepo.Find(id);
 
             if (customer == null)
             {
@@ -158,6 +161,51 @@ namespace LibraryManagementSystem.Controllers
             }
 
             return View(customer);
+        }
+
+        [HttpPost]
+        public JsonResult AjaxDelete()
+        {
+            try
+            {
+                try
+                {
+                    var id = int.Parse(Request.Form["id"]);
+                    var customer = _customerRepo.Find(id);
+                    _customerRepo.Delete(customer);
+                    _customerRepo.Save();
+                }
+                catch (MySqlException e)
+                {
+                    if (e.Number == 1451)
+                    {
+                        return Json(new
+                        {
+                            status = false,
+                            response = "Checked out/reserved items found. This customer must return " +
+                                            "all items and cancel all reservations before this account may be deleted."
+                        });
+                    }
+
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Oops! Something went wrong. Please refresh and try again.",
+                    error = e.Message
+                });
+            }
+            
+
+            return Json(new
+            {
+                status = true,
+                response = "Customer successfully deleted!"
+            });
         }
 
         // POST: Customers/Delete/5
@@ -169,8 +217,30 @@ namespace LibraryManagementSystem.Controllers
 
             if (customer != null)
             {
-                _customerRepo.Delete(customer);
-                _customerRepo.Save();
+                try
+                {
+                    _customerRepo.Delete(customer);
+                    _customerRepo.Save();
+                }
+                catch (MySqlException e)
+                {
+                    if (e.Number == 1451)
+                    {
+                        ModelState.AddModelError(String.Empty,
+                            "Checked out/reserved items found. This customer must return " +
+                            "all items and cancel all reservations before this account may be deleted.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(String.Empty,
+                            "Oops! Something went wrong. Please refresh and try again.");
+                    }
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return View("Index");
+                }
             }
 
             return RedirectToAction("Index");

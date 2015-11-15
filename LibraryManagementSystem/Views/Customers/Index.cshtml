@@ -2,6 +2,15 @@
 
 @{
     ViewBag.Title = "Customers";
+
+    if (!ViewBag.customersExist)
+    {
+        <h1>yes</h1>
+    }
+    else
+    {
+        <h1>no</h1>
+    }
 }
 
 
@@ -14,47 +23,87 @@
     </div>
 </div>
 
+<div id="page-alerts"></div>
 
-<table class="table table-striped table-bordered table-hover">
+
+<table id="customers-list" class="table table-striped table-bordered table-hover" @(!ViewBag.customersExist ? "style=\"display: none;\"" : "")>
     <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CustomerNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FirstName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LastName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.CustomerNumber)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CustomerNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FirstName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LastName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.ActionLink("View", "Details", new { id = item.Id }, new { @class = "btn btn-default" })
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-warning" })
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-danger" })
-                </td>
-            </tr>
-        }
+    @foreach (var item in Model)
+    {
+        <tr data-content="customer" data-customer-id="@item.Id">
+            <td>
+                @Html.DisplayFor(modelItem => item.CustomerNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FirstName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.ActionLink("View", "Details", new {id = item.Id}, new {@class = "btn btn-default"})
+                @Html.ActionLink("Edit", "Edit", new {id = item.Id}, new {@class = "btn btn-warning"})
+                <button class="btn btn-danger" data-customer-id="@item.Id" data-trigger="delete-customer"
+                        data-customer-name="@item.GetFullName()">
+                    Delete
+                </button>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
+
+<div id="customers-empty" class="text-center" style="@(ViewBag.customersExist ? "display: none" : "")">
+    <h3>You haven't created any customers</h3>
+</div>
+
+<!-- Customer Delete Modal -->
+<div id="customer-delete-modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Delete Customer</h4>
+            </div>
+            <div class="modal-body">
+                <div class="loader-container">
+                    <span class="spinner"></span>
+                    <div class="overlay"></div>
+                </div>
+                <div class="alerts-container"></div>
+                <h3>Are you sure you want to delete <span data-content="customer-name"></span>?</h3>
+                <div class="row">
+                    <div class="col-xs-6 text-center">
+                        <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">No, Go Back</button>
+                    </div>
+                    <div class="col-xs-6 text-center">
+                        <button type="button" class="btn btn-danger btn-lg" data-action="delete-customer">
+                            Yes, Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Customer Delete Modal -->
