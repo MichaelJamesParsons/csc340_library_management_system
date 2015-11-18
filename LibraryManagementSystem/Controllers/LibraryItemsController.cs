@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.Controllers
@@ -13,12 +15,35 @@ namespace LibraryManagementSystem.Controllers
     public class LibraryItemsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
+        private readonly ILibraryItemRepository _libraryItemRepository;
+
+        public LibraryItemsController(ILibraryItemRepository libraryItemRepository)
+        {
+            this._libraryItemRepository = libraryItemRepository;
+        }
 
         // GET: LibraryItems
         public ActionResult Index()
         {
             var items = db.LibraryItems.Include("LibraryItems.ISBN");
             return View(db.LibraryItems.ToList());
+        }
+
+
+        public ActionResult Search()
+        {
+            try
+            {
+                var searchResults = _libraryItemRepository.GetAll();
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            ViewBag.searchResults = null;
+
+            return View();
         }
 
         /*

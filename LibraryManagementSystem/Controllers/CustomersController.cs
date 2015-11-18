@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Data.Entity;
-using System.Data.SqlTypes;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
@@ -66,11 +64,7 @@ namespace LibraryManagementSystem.Controllers
         // GET: Customers/Details/5
         public ActionResult Details(int id)
         {
-            //var customer = _customerRepo.Find((int)id);
-            //var customer = _customerRepo.FindBy(s => s.Id == id).Include(s => s.Reservations).Include("Reservations.LibraryItem").FirstOrDefault();
             var customer = _customerRepo.FindBy(s => s.Id == id).Include(s => s.Reservations).Include("Reservations.LibraryItem").FirstOrDefault();
-
-            Debug.WriteLine(customer.Reservations.Count);
 
             if (customer == null)
             {
@@ -170,6 +164,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 try
                 {
+                    //$_POST["id"] == Request.Form["id"]
                     var id = int.Parse(Request.Form["id"]);
                     var customer = _customerRepo.Find(id);
                     _customerRepo.Delete(customer);
@@ -177,6 +172,7 @@ namespace LibraryManagementSystem.Controllers
                 }
                 catch (MySqlException e)
                 {
+                    //1451 == Foreign key constraint error (Customer has items reserved / checked out
                     if (e.Number == 1451)
                     {
                         return Json(new

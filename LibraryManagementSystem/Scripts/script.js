@@ -2,6 +2,57 @@ $(document).ready(function () {
     var pageAlerts = $("#page-alerts");
     var reservationNotice = $("#empty-reservation-notice");
 
+    /**
+     * Generates the HTML for a Twitter Bootstrap alert.
+     *
+     * @param message - The message to place inside of the alert.
+     * @param type - The type of bootstrap alert.
+     *                  Options:
+     *                      * Success
+     *                      * Info
+     *                      * Warning
+     *                      * Danger
+     * @returns {string} - HTML for a bootstrap alert
+     */
+    function makeAlert(message, type) {
+        return "<div class=\"alert alert-" + type + "\">" +
+            "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">" +
+                "<span aria-hidden=\"true\">&times;</span>" +
+            "</button>"
+            + message +
+            "</div>";
+    }
+
+
+    /**
+     * Generates the HTML for one or more Twitter Bootstrap error alerts.
+     *
+     * @param error     - (string || array) A single string or array of errors to display.
+     * @returns {string} - HTML for one or more twitter bootstrap alerts.
+     */
+    function makeAlertErrors(error) {
+        if ($.isArray(error)) {
+            var errorMessages = "<ul>";
+
+            $.each(error, function (k, v) {
+                errorMessages += "<li>" + v + "</li>";
+            });
+            errorMessages += "</ul>";
+
+            return makeAlert(errorMessages, "danger");
+        }
+        return makeAlert(error, "danger");
+    }
+
+    /**
+     * Removes all alerts on the page.
+     */
+    function clearAlerts() {
+        $(".alert").remove();
+    }
+
+
+
     /** ****************************************
      *  Check Out/Reserve Item Modal
      ** ****************************************/
@@ -14,7 +65,7 @@ $(document).ready(function () {
 
     reservationSubmit.click(function () {
         clearAlerts();
-        if(reservationItemId.val() == "") {
+        if(reservationItemId.val() === "") {
             reservationAlerts.html(makeAlertErrors("Please enter an item ID."));
             return false;
         }
@@ -76,8 +127,8 @@ $(document).ready(function () {
      *  Check-In Item Modal
      ** ****************************************/
     var checkInModal = $("#check-in-model");
-    var checkInItemName = checkInModal.find("[data-content=\"check-in-item-name\"]")
-    var checkInAction = checkInModal.find("[data-action=\"check_in_item\"]")
+    var checkInItemName = checkInModal.find("[data-content=\"check-in-item-name\"]");
+    var checkInAction = checkInModal.find("[data-action=\"check_in_item\"]");
     var checkInAlerts = checkInModal.find(".alerts-container");
     var checkInLoader = checkInModal.find(".loader-container");
     var checkInItemType = checkInModal.find("[data-content=\"item-type\"]");
@@ -231,54 +282,4 @@ $(document).ready(function () {
             }
         });
     });
-
-
-    /**
-     * Generates the HTML for a Twitter Bootstrap alert.
-     *
-     * @param message - The message to place inside of the alert.
-     * @param type - The type of bootstrap alert.
-     *                  Options:
-     *                      * Success
-     *                      * Info
-     *                      * Warning
-     *                      * Danger
-     * @returns {string} - HTML for a bootstrap alert
-     */
-    function makeAlert(message, type) {
-        return "<div class=\"alert alert-" + type + "\">" +
-            "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">" +
-                "<span aria-hidden=\"true\">&times;</span>" +
-            "</button>"
-            + message + 
-            "</div>";
-    }
-
-
-    /**
-     * Generates the HTML for one or more Twitter Bootstrap error alerts.
-     *
-     * @param error     - (string || array) A single string or array of errors to display.
-     * @returns {string} - HTML for one or more twitter bootstrap alerts.
-     */
-    function makeAlertErrors(error) {
-        if ($.isArray(error)) {
-            var errorMessages = "<ul>";
-
-            $.each(error, function(k, v) {
-                errorMessages += "<li>" + v + "</li>";
-            });
-            errorMessages += "</ul>";
-
-            return makeAlert(errorMessages, "danger");
-        }
-        return makeAlert(error, "danger");
-    }
-
-    /**
-     * Removes all alerts on the page.
-     */
-    function clearAlerts() {
-        $(".alert").remove();
-    }
 });
