@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
-using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem
 {
@@ -13,6 +8,13 @@ namespace LibraryManagementSystem
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            /** Library Items **/
+            routes.MapRoute(
+                name: "LibraryItem",
+                url: "library/{action}",
+                defaults: new { controller = "LibraryItems", action = "Index" }
+            );
 
             /** Customer Items **/
             routes.MapRoute(
@@ -32,19 +34,12 @@ namespace LibraryManagementSystem
                 defaults: new { controller = "Books", action = "Index", id = UrlParameter.Optional }
             );
 
-            /** Library Items **/
-            routes.MapRoute(
-                name: "LibraryItem",
-                url: "library",
-                defaults: new { controller = "LibraryItem", action = "Index" }
-            );
-
             /** Customers **/
-            /*routes.MapRoute(
+            routes.MapRoute(
                 name: "Customer",
                 url: "customers/{action}/{id}",
                 defaults: new { controller = "Customers", action = "Index", id = UrlParameter.Optional }
-            );*/
+            );
 
             /** Librarian **/
             routes.MapRoute(

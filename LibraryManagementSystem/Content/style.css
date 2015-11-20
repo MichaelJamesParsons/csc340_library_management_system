@@ -144,3 +144,9 @@ table.table tbody > tr > td > button {
 #empty-reservation-notice {
     margin-bottom: 25px;
 }
+
+.btn-group-right ul {
+    left: auto;
+    right: 0;
+    text-align: center;
+}

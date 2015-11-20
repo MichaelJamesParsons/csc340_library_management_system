@@ -16,7 +16,7 @@ namespace LibraryManagementSystem.Models
         public int Quantity { get; set; }
 
         [DisplayName("Type")]
-        public static string ItemType { get; set; }
+        public string ItemType { get; set; }
 
         [DisplayName("Allow Checkout")]
         public bool CanCheckOut { get; protected set; }
@@ -24,13 +24,17 @@ namespace LibraryManagementSystem.Models
 
         public LibraryItem()
         {
-            LibraryItem.ItemType = "";
             LibraryItem.Controller = "";
         }
 
         public string GetItemType()
         {
             return ItemType;
+        }
+
+        public string GetPublicationYear()
+        {
+            return PublicationYear.ToString("MM/dd/yy");
         }
     }
 }

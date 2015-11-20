@@ -11,6 +11,7 @@ namespace LibraryManagementSystem.Models
         [Required]
         [Index("LibrarianUsernameIndex", 1, IsUnique = true)]
         [MinLength(5, ErrorMessage = "Your username must contain at least 2 characters.")]
+        [MaxLength(50, ErrorMessage = "Your username may not contain more than 50 characters.")]
         public string Username { get; set; }
 
         [Required]

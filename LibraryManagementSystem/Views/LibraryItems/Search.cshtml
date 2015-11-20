@@ -1,9 +1,142 @@
-﻿@model LibraryManagementSystem.Models.LibraryItem
+﻿@using System.Web.UI.WebControls.Expressions
+@model LibraryManagementSystem.Models.LibraryItem
 
 @{
     ViewBag.Title = "Search";
+    ViewBag.searchKeys = new List<KeyValuePair<string, string>>()
+    {
+        new KeyValuePair<string, string>("Title", "Title"),
+        new KeyValuePair<string, string>("Author", "Author"),
+        new KeyValuePair<string, string>("Isbn", "ISBN"),
+        new KeyValuePair<string, string>("PublicationYear","Publication Year")
+    };
+
+    ViewBag.itemTypes = new List<KeyValuePair<string, string>>()
+    {
+        new KeyValuePair<string, string>("", "All"),
+        new KeyValuePair<string, string>("Book", "Books"),
+        new KeyValuePair<string, string>("Magazine", "Magazines"),
+        new KeyValuePair<string, string>("DigitalMedia", "Digital Media")
+    };
+
+    ViewBag.selectedSearchType = ViewBag.selectedSearchType ?? "";
+    ViewBag.selectedSearchKey = ViewBag.selectedSearchKey ?? "";
 }
 
-<h2>Search</h2>
+<h1>Search</h1>
 
-    
+@Html.ValidationSummary()
+
+<form action="" method="GET">
+    <div class="row">
+        <div class="col-xs-3 col-sm-2">
+            <!-- Select menu -->
+            <div class="form-group">
+                <label>Search for</label>
+                <select name="type" class="form-control input-lg">
+                    @foreach (KeyValuePair<string, string> itemType in ViewBag.itemTypes)
+                    {
+                        <option value="@itemType.Key" @(ViewBag.selectedSearchType.Equals(itemType.Key) ? "selected" : "")>
+                            @itemType.Value
+                        </option>
+                    }
+                </select>
+            </div>
+            <!-- / select menu-->
+        </div>
+        <div class="col-xs-3 col-sm-2">
+            <!-- Select menu -->
+            <div class="form-group">
+                <label>By</label>
+                <select name="key" class="form-control input-lg">
+                    @foreach (KeyValuePair<string, string> searchKey in ViewBag.searchKeys)
+                    {
+                        <option value="@searchKey.Key" @(ViewBag.selectedSearchKey.Equals(searchKey.Key) ? "selected" : "")>
+                            @searchKey.Value
+                        </option>
+                    }
+                </select>
+            </div>
+            <!-- / select menu-->
+        </div>
+        <div class="col-xs-6 col-sm-8">
+            <div class="form-group">
+                <label>Enter title, ISBN, Publication year, etc.</label>
+                <div class="input-group">
+                    <!-- Search box -->
+                    <input type="text" name="query" class="form-control input-lg" 
+                           placeholder="Keywords (Title, ISBN, Publication Year, etc)" value="@ViewBag.searchQuery"/>
+                    <!-- / search box -->
+
+                    <!-- Submit search button -->
+                    <div class="input-group-btn">
+                        <button class="btn btn-success btn-lg" type="submit">Search</button>
+                    </div>
+                    <!-- /submit search button -->
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+@{
+    if (ViewBag.searchResults != null && ViewBag.searchResults.Count > 0)
+    {
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Title)
+                </th>
+                <th>Type</th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PublicationYear)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Author)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.searchResults)
+                {
+                    <tr>
+                        <td>
+                            @item.Id
+                        </td>
+                        <td>
+                           @item.Title
+                        </td>
+                        <td>
+                            @item.ItemType
+                        </td>
+                        <td>
+                            @item.GetPublicationYear()
+                        </td>
+                        <td>
+                            @item.Author
+                        </td>
+                        <td>
+                            @item.Quantity
+                        </td>
+                    </tr>
+                }
+                </tbody>
+        </table>
+    }
+    else if (ViewBag.serchType != null && ViewBag.searchQuery)
+    {
+
+    }
+    else
+    {
+        <h3 class="text-center">You haven't searched anything yet.</h3>
+    }
+}

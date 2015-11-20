@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
+﻿using System.Data.Entity;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using LibraryManagementSystem.Models;
 
@@ -58,6 +53,7 @@ namespace LibraryManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
+                book.ItemType = "Book";
                 db.LibraryItems.Add(book);
                 db.SaveChanges();
                 return RedirectToAction("Index");

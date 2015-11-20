@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
+using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using System.Web;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Web.Mvc;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
+using WebGrease.Css.Extensions;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -29,21 +28,41 @@ namespace LibraryManagementSystem.Controllers
             return View(db.LibraryItems.ToList());
         }
 
-
+        [HttpGet]
         public ActionResult Search()
         {
             try
             {
-                var searchResults = _libraryItemRepository.GetAll();
+                var urlQueryString = Request.QueryString.Get("searchType");
+
+                var searchType  = Request.QueryString.Get("type");
+                var searchKey   = Request.QueryString.Get("key");
+                var searchQuery = Request.QueryString.Get("query");
+
+                ViewBag.selectedSearchType  = searchType;
+                ViewBag.selectedSearchKey   = searchKey;
+                ViewBag.searchQuery         = searchQuery;
+
+                if (searchQuery != null)
+                {
+                    var searchResults = _libraryItemRepository.SearchLibraryItems(searchType, searchKey, searchQuery);
+                    ViewBag.searchResults = searchResults;
+                }
             }
             catch (Exception e)
             {
-                
+                ModelState.AddModelError(string.Empty, "Oops! Something went wrong. Please try another search.");
             }
 
-            ViewBag.searchResults = null;
-
             return View();
+        }
+
+        public static Expression<Func<LibraryItem, bool>> PropertyEquals<LibraryItem, TValue>(PropertyInfo property, TValue value)
+        {
+            var param = Expression.Parameter(typeof(LibraryItem));
+            var body = Expression.Equal(Expression.Property(param, property),
+                Expression.Constant(value));
+            return Expression.Lambda<Func<LibraryItem, bool>>(body, param);
         }
 
         /*

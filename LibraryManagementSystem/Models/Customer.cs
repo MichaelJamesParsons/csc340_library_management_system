@@ -13,6 +13,7 @@ namespace LibraryManagementSystem.Models
         [Required]
         [Index("LibrarianUsernameIndex", 1, IsUnique = true)]
         [RegularExpression("^(901)[0-9]{6}$", ErrorMessage = "Please enter a valid 9 digit customer number.")]
+        [StringLength(9)]
         [DisplayName("Customer Number")]
         public string CustomerNumber { get; set; }
 
