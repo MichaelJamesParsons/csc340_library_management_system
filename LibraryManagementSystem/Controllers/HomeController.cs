@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Validation;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using LibraryManagementSystem.Models;
-using System.Data.Entity.Infrastructure;
-using System.Diagnostics;
+﻿using System.Web.Mvc;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         public ActionResult Index()

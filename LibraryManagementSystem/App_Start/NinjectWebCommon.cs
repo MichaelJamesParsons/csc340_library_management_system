@@ -67,6 +67,7 @@ namespace LibraryManagementSystem.App_Start
             kernel.Bind<ICustomerRepository>().To<CustomerRepository>();
             kernel.Bind<ILibraryItemRepository>().To<LibraryItemRepository>();
             kernel.Bind<IReservationRepository>().To<ReservationRepository>();
+            kernel.Bind<ILibrarianRepository>().To<LibrarianRepository>();
         }        
     }
 }

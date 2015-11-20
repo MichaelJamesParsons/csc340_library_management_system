@@ -5,6 +5,7 @@ using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class BooksController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();

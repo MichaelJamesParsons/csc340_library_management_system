@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.Models
@@ -15,6 +16,7 @@ namespace LibraryManagementSystem.Models
         public string Author { get; set; }
         public int Quantity { get; set; }
 
+        [Required]
         [DisplayName("Type")]
         public string ItemType { get; set; }
 
@@ -36,5 +38,16 @@ namespace LibraryManagementSystem.Models
         {
             return PublicationYear.ToString("MM/dd/yy");
         }
+
+        public static List<string> GetItemTypes()
+        {
+            return new List<string>()
+            {
+                "Book",
+                "CD",
+                "DVD",
+                "Magazine"
+            };
+        } 
     }
 }

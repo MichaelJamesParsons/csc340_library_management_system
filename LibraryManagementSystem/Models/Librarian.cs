@@ -4,15 +4,9 @@ using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.Models
 {
-    public class Librarian : BaseModel, IModelKey
+    public class Librarian : IModelKey
     {
         public int Id { get; set; }
-
-        [Required]
-        [Index("LibrarianUsernameIndex", 1, IsUnique = true)]
-        [MinLength(5, ErrorMessage = "Your username must contain at least 2 characters.")]
-        [MaxLength(50, ErrorMessage = "Your username may not contain more than 50 characters.")]
-        public string Username { get; set; }
 
         [Required]
         [MinLength(8, ErrorMessage = "Your password must contain at least 8 characters in length.")]

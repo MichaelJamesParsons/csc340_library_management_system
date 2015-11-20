@@ -26,9 +26,9 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.GetPublicationYear, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.PublicationYear, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.GetPublicationYear(), new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.PublicationYear, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.PublicationYear, "", new { @class = "text-danger" })
             </div>
         </div>

@@ -12,9 +12,34 @@ namespace LibraryManagementSystem
             /** Library Items **/
             routes.MapRoute(
                 name: "LibraryItem",
-                url: "library/{action}",
+                url: "library/index",
                 defaults: new { controller = "LibraryItems", action = "Index" }
             );
+
+            /** Books **/
+            routes.MapRoute(
+                name: "Book",
+                url: "library/book/{action}/{id}",
+                defaults: new { controller = "Books", action = "Index", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
+                name: "LibraryItemActions",
+                url: "library/{type}/{action}/{id}",
+                defaults: new { controller = "LibraryItems", id = UrlParameter.Optional }
+            );
+
+            /*routes.MapRoute(
+                name: "CD",
+                url: "library/cds/create",
+                defaults: new { controller = "LibraryItems", action = "Create" }
+            );
+
+            routes.MapRoute(
+                name: "DVD",
+                url: "library/dvds/create",
+                defaults: new { controller = "LibraryItems", action = "Create" }
+            );*/
 
             /** Customer Items **/
             routes.MapRoute(
@@ -25,13 +50,6 @@ namespace LibraryManagementSystem
                     action = "Index",
                     id = UrlParameter.Optional
                 }
-            );
-
-            /** Books **/
-            routes.MapRoute(
-                name: "Book",
-                url: "library/books/{action}/{id}",
-                defaults: new { controller = "Books", action = "Index", id = UrlParameter.Optional }
             );
 
             /** Customers **/

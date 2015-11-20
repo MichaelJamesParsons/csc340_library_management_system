@@ -10,6 +10,7 @@ using MySql.Data.MySqlClient;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class CustomersController : Controller
     {
         private readonly ICustomerRepository _customerRepo;

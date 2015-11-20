@@ -10,6 +10,7 @@ using LibraryManagementSystem.Models.ViewModels;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class ReservationsController : Controller
     {
         private LibraryDataContext db = new LibraryDataContext();

@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Web.Mvc;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
-using WebGrease.Css.Extensions;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class LibraryItemsController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
@@ -33,8 +33,6 @@ namespace LibraryManagementSystem.Controllers
         {
             try
             {
-                var urlQueryString = Request.QueryString.Get("searchType");
-
                 var searchType  = Request.QueryString.Get("type");
                 var searchKey   = Request.QueryString.Get("key");
                 var searchQuery = Request.QueryString.Get("query");
@@ -49,7 +47,7 @@ namespace LibraryManagementSystem.Controllers
                     ViewBag.searchResults = searchResults;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ModelState.AddModelError(string.Empty, "Oops! Something went wrong. Please try another search.");
             }
@@ -65,7 +63,7 @@ namespace LibraryManagementSystem.Controllers
             return Expression.Lambda<Func<LibraryItem, bool>>(body, param);
         }
 
-        /*
+        
         // GET: LibraryItems/Details/5
         public ActionResult Details(int? id)
         {
@@ -82,8 +80,14 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: LibraryItems/Create
-        public ActionResult Create()
+        public ActionResult Create(string type)
         {
+            var allowedLibraryItemTypes = LibraryItem.GetItemTypes();
+
+            if (!allowedLibraryItemTypes.Contains(type, StringComparer.OrdinalIgnoreCase))
+               return HttpNotFound();
+
+            ViewBag.itemType = type.First().ToString().ToUpper() + type.Substring(1);
             return View();
         }
 
@@ -92,7 +96,7 @@ namespace LibraryManagementSystem.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut")] LibraryItem libraryItem)
+        public ActionResult Create([Bind(Include = "Id,Title,ItemType,PublicationYear,Author,Quantity,CanCheckOut")] LibraryItem libraryItem)
         {
             if (ModelState.IsValid)
             {
@@ -169,6 +173,6 @@ namespace LibraryManagementSystem.Controllers
             }
             base.Dispose(disposing);
         }
-        */
+        
     }
 }

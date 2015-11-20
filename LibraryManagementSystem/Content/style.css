@@ -80,8 +80,8 @@ table.table tbody > tr > td > button {
     background-color: #19495B;
 }
 
-.login-panel {
-    color: #fff;
+.login-panel h1 {
+    margin-top: 0;
 }
 
 #page-wrapper {
