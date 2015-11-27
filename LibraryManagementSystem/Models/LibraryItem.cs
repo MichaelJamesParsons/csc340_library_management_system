@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Web.WebSockets;
 using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.Models
@@ -39,15 +40,12 @@ namespace LibraryManagementSystem.Models
             return PublicationYear.ToString("MM/dd/yy");
         }
 
-        public static List<string> GetItemTypes()
+        public static HashSet<string> GetItemTypes()
         {
-            return new List<string>()
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Book",
-                "CD",
-                "DVD",
-                "Magazine"
+                "Book", "CD", "DVD", "Magazine"
             };
-        } 
+        }
     }
 }

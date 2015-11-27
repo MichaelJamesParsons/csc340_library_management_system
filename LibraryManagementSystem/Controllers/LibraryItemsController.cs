@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
-using System.Reflection;
 using System.Web.Mvc;
+using LibraryManagementSystem.DAL;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Models.ViewModels;
 
 namespace LibraryManagementSystem.Controllers
 {
     [Authorize]
     public class LibraryItemsController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private LibraryDataContext db = new LibraryDataContext();
         private readonly ILibraryItemRepository _libraryItemRepository;
 
         public LibraryItemsController(ILibraryItemRepository libraryItemRepository)
@@ -24,45 +24,32 @@ namespace LibraryManagementSystem.Controllers
         // GET: LibraryItems
         public ActionResult Index()
         {
-            var items = db.LibraryItems.Include("LibraryItems.ISBN");
             return View(db.LibraryItems.ToList());
         }
 
         [HttpGet]
-        public ActionResult Search()
+        public ActionResult Search([Bind(Include = "FieldName, ItemType, Query")] LibraryItemsSearchViewModel search)
         {
             try
             {
-                var searchType  = Request.QueryString.Get("type");
-                var searchKey   = Request.QueryString.Get("key");
-                var searchQuery = Request.QueryString.Get("query");
+                var searchType  = (!string.IsNullOrEmpty(search.ItemType)) ? search.ItemType : "";
+                var searchKey   = (!string.IsNullOrEmpty(search.FieldName)) ? search.FieldName : "";
+                var searchQuery = (!string.IsNullOrEmpty(search.Query)) ? search.Query : "";
 
-                ViewBag.selectedSearchType  = searchType;
-                ViewBag.selectedSearchKey   = searchKey;
-                ViewBag.searchQuery         = searchQuery;
-
-                if (searchQuery != null)
+                if (!string.IsNullOrEmpty(searchQuery))
                 {
                     var searchResults = _libraryItemRepository.SearchLibraryItems(searchType, searchKey, searchQuery);
                     ViewBag.searchResults = searchResults;
+                    search.Results = searchResults;
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 ModelState.AddModelError(string.Empty, "Oops! Something went wrong. Please try another search.");
             }
 
-            return View();
+            return View(search);
         }
-
-        public static Expression<Func<LibraryItem, bool>> PropertyEquals<LibraryItem, TValue>(PropertyInfo property, TValue value)
-        {
-            var param = Expression.Parameter(typeof(LibraryItem));
-            var body = Expression.Equal(Expression.Property(param, property),
-                Expression.Constant(value));
-            return Expression.Lambda<Func<LibraryItem, bool>>(body, param);
-        }
-
         
         // GET: LibraryItems/Details/5
         public ActionResult Details(int? id)
@@ -83,8 +70,8 @@ namespace LibraryManagementSystem.Controllers
         public ActionResult Create(string type)
         {
             var allowedLibraryItemTypes = LibraryItem.GetItemTypes();
-
-            if (!allowedLibraryItemTypes.Contains(type, StringComparer.OrdinalIgnoreCase))
+            
+            if(!allowedLibraryItemTypes.Contains(type))
                return HttpNotFound();
 
             ViewBag.itemType = type.First().ToString().ToUpper() + type.Substring(1);

@@ -1,10 +1,7 @@
 namespace LibraryManagementSystem.Migrations
 {
-    using System;
-    using System.Data.Entity;
     using System.Data.Entity.Migrations;
-    using LibraryManagementSystem.DAL;
-    using System.Linq;
+    using DAL;
 
     internal sealed class Configuration : DbMigrationsConfiguration<LibraryDataContext>
     {

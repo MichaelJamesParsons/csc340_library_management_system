@@ -248,6 +248,7 @@
     <Compile Include="DAL\LibraryDataContext.cs" />
     <Compile Include="Models\LibraryItem.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\ViewModels\LibraryItemsSearchViewModel.cs" />
     <Compile Include="Models\ViewModels\ReservationViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -378,7 +379,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Librarian\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

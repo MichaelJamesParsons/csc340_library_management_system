@@ -27,9 +27,9 @@ namespace LibraryManagementSystem.Controllers
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        
         public ActionResult Login(AuthenticationLoginViewModel viewModel)
         {
             if (!ModelState.IsValid)
@@ -43,13 +43,15 @@ namespace LibraryManagementSystem.Controllers
                 var identity = new ClaimsIdentity(
                     new [] 
                     {
-                        new Claim(ClaimTypes.Name, viewModel.Email), 
+                        new Claim(ClaimTypes.NameIdentifier, $"{librarian.Id}"),
+                        new Claim(ClaimTypes.Name, librarian.FirstName),
+                        new Claim(ClaimTypes.Surname, librarian.LastName),
+                        new Claim(ClaimTypes.Email, librarian.Email),
+                        new Claim(ClaimTypes.Role, "Librarian") 
                     },
                     DefaultAuthenticationTypes.ApplicationCookie,
-                    ClaimTypes.Name, ClaimTypes.Role
+                    ClaimTypes.NameIdentifier, ClaimTypes.Role
                     );
-
-                identity.AddClaim(new Claim(ClaimTypes.Role, "librarian"));
 
                 Authentication.SignIn(new AuthenticationProperties
                 {

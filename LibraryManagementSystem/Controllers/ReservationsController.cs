@@ -13,7 +13,7 @@ namespace LibraryManagementSystem.Controllers
     [Authorize]
     public class ReservationsController : Controller
     {
-        private LibraryDataContext db = new LibraryDataContext();
+        private readonly LibraryDataContext _db = new LibraryDataContext();
         private readonly IReservationRepository _reservationRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly ILibraryItemRepository _libraryItemRepository;
@@ -30,7 +30,7 @@ namespace LibraryManagementSystem.Controllers
         // GET: Reservations
         public ActionResult Index()
         {
-            return View(db.Reservations.ToList());
+            return View(_db.Reservations.ToList());
         }
 
         // GET: Reservations/Details/5
@@ -40,7 +40,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Reservation reservation = db.Reservations.Find(id);
+            Reservation reservation = _db.Reservations.Find(id);
             if (reservation == null)
             {
                 return HttpNotFound();
@@ -68,15 +68,15 @@ namespace LibraryManagementSystem.Controllers
         [HttpPost]
         public JsonResult AjaxCreate()
         {
-            Int32 customerId;
-            Int32 itemId;
+            int customerId;
+            int itemId;
             bool isReserved;
 
             try
             {
-                customerId = Int32.Parse(Request.Form["CustomerId"]);
-                itemId = Int32.Parse(Request.Form["LibraryItemId"]);
-                isReserved = Boolean.Parse(Request.Form["IsReserved"]);
+                customerId = int.Parse(Request.Form["CustomerId"]);
+                itemId = int.Parse(Request.Form["LibraryItemId"]);
+                isReserved = bool.Parse(Request.Form["IsReserved"]);
             }
             catch (Exception)
             {
@@ -105,6 +105,15 @@ namespace LibraryManagementSystem.Controllers
                 {
                     status = false,
                     response = "Item does not exist."
+                });
+            }
+
+            if (!item.CanCheckOut)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = $"This item is a <b>{item.ItemType}</b>, which is not allowed to be checked out."
                 });
             }
             
@@ -136,7 +145,6 @@ namespace LibraryManagementSystem.Controllers
                     response = "There aren't any more copies of that item available."
                 });
             }
-            
 
             var reservation = new Reservation
             {
@@ -148,16 +156,9 @@ namespace LibraryManagementSystem.Controllers
             _reservationRepository.Add(reservation);
             _reservationRepository.Save();
             _reservationRepository.ReloadRepository(reservation);
-           
-            string responseMessage;
-            if (isReserved)
-            {
-                responseMessage = $"Item Reserved. You must check it out by {reservation.GetDueDate()}";
-            }
-            else
-            {
-                responseMessage = $"Item Reserved. You must return it by {reservation.GetDueDate()}";
-            }
+            
+            var action = isReserved ? "check it out" : "return it";
+            var responseMessage = $"Item Reserved. You must {action} by {reservation.GetDueDate()}";
 
             return Json(new
             {
@@ -166,14 +167,13 @@ namespace LibraryManagementSystem.Controllers
                 {
                     reservation = new
                     {
-                        Id = reservation.Id,
+                        reservation.Id,
                         DueDate = reservation.GetDueDate(),
-                        IsReserved = reservation.IsReserved
-
+                        reservation.IsReserved
                     },
                     item = new
                     {
-                        Title = item.Title
+                       item.Title
                     },
                     message = responseMessage
                 }
@@ -267,7 +267,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Reservation reservation = db.Reservations.Find(id);
+            Reservation reservation = _db.Reservations.Find(id);
             if (reservation == null)
             {
                 return HttpNotFound();
@@ -284,8 +284,8 @@ namespace LibraryManagementSystem.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(reservation).State = EntityState.Modified;
-                db.SaveChanges();
+                _db.Entry(reservation).State = EntityState.Modified;
+                _db.SaveChanges();
                 return RedirectToAction("Index");
             }
             return View(reservation);
@@ -298,7 +298,7 @@ namespace LibraryManagementSystem.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Reservation reservation = db.Reservations.Find(id);
+            Reservation reservation = _db.Reservations.Find(id);
             if (reservation == null)
             {
                 return HttpNotFound();
@@ -337,9 +337,9 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Reservation reservation = db.Reservations.Find(id);
-            db.Reservations.Remove(reservation);
-            db.SaveChanges();
+            Reservation reservation = _db.Reservations.Find(id);
+            _db.Reservations.Remove(reservation);
+            _db.SaveChanges();
             return RedirectToAction("Index");
         }
 
@@ -347,7 +347,7 @@ namespace LibraryManagementSystem.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _db.Dispose();
             }
             base.Dispose(disposing);
         }

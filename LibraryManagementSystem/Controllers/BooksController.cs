@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using LibraryManagementSystem.Models;
@@ -52,29 +53,26 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut,Isbn")] Book book)
         {
-            if (ModelState.IsValid)
-            {
-                book.ItemType = "Book";
-                db.LibraryItems.Add(book);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-
-            return View(book);
+            if (!ModelState.IsValid)
+                return View(book);
+            
+            book.ItemType = "Book";
+            db.LibraryItems.Add(book);
+            db.SaveChanges();
+            return RedirectToAction("Index", "LibraryItems");
         }
 
         // GET: Books/Edit/5
         public ActionResult Edit(int? id)
         {
             if (id == null)
-            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Book book = (Book)db.LibraryItems.Find(id);
+
+            var book = db.LibraryItems.OfType<Book>().FirstOrDefault(x => x.Id == id);
+            
             if (book == null)
-            {
                 return HttpNotFound();
-            }
+
             return View(book);
         }
 
@@ -85,13 +83,12 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut,Isbn")] Book book)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(book).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(book);
+            if (!ModelState.IsValid)
+                return View(book);
+
+            db.Entry(book).State = EntityState.Modified;
+            db.SaveChanges();
+            return RedirectToAction("Index", "LibraryItems");
         }
 
         // GET: Books/Delete/5
@@ -117,7 +114,7 @@ namespace LibraryManagementSystem.Controllers
             Book book = (Book)db.LibraryItems.Find(id);
             db.LibraryItems.Remove(book);
             db.SaveChanges();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", "LibraryItems");
         }
 
         protected override void Dispose(bool disposing)

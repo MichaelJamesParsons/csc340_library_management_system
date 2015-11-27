@@ -9,6 +9,18 @@ namespace LibraryManagementSystem
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+            /** Customer Items **/
+            routes.MapRoute(
+                name: "Reservation",
+                url: "library/reservations/{action}/{id}",
+                defaults: new
+                {
+                    controller = "Reservations",
+                    action = "Index",
+                    id = UrlParameter.Optional
+                }
+            );
+
             /** Library Items **/
             routes.MapRoute(
                 name: "LibraryItem",
@@ -27,29 +39,6 @@ namespace LibraryManagementSystem
                 name: "LibraryItemActions",
                 url: "library/{type}/{action}/{id}",
                 defaults: new { controller = "LibraryItems", id = UrlParameter.Optional }
-            );
-
-            /*routes.MapRoute(
-                name: "CD",
-                url: "library/cds/create",
-                defaults: new { controller = "LibraryItems", action = "Create" }
-            );
-
-            routes.MapRoute(
-                name: "DVD",
-                url: "library/dvds/create",
-                defaults: new { controller = "LibraryItems", action = "Create" }
-            );*/
-
-            /** Customer Items **/
-            routes.MapRoute(
-                name: "Reservation",
-                url: "library/reservations/{action}/{id}",
-                defaults: new {
-                    controller = "Reservations",
-                    action = "Index",
-                    id = UrlParameter.Optional
-                }
             );
 
             /** Customers **/
