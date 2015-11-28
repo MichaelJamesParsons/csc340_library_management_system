@@ -99,7 +99,7 @@ namespace LibraryManagementSystem.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut")] LibraryItem libraryItem)
+        public ActionResult Edit([Bind(Include = "Id,Title,PublicationYear,Author,ItemType,Quantity,CanCheckOut")] LibraryItem libraryItem)
         {
             if (!ModelState.IsValid)
                 return View(libraryItem);

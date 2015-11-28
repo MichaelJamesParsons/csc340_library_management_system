@@ -9,10 +9,6 @@ namespace LibraryManagementSystem.Models
         public int Id { get; set; }
 
         [Required]
-        [MinLength(8, ErrorMessage = "Your password must contain at least 8 characters in length.")]
-        public string Password { get; set; }
-
-        [Required]
         [MaxLength(30, ErrorMessage = "Your first name may not contain more than 30 characters."), 
             MinLength(2, ErrorMessage = "Your first name must contain at least 2 characters.")]
         public string FirstName { get; set; }
@@ -25,5 +21,9 @@ namespace LibraryManagementSystem.Models
         [MaxLength(100, ErrorMessage = "Email address is too long (must contain less than 100 characters)")]
         [Index("LibrarianEmailIndex", 1, IsUnique = true)]
         public string Email { get; set; }
+
+        [Required]
+        [MinLength(8, ErrorMessage = "Your password must contain at least 8 characters in length.")]
+        public string Password { get; set; }
     }
 }

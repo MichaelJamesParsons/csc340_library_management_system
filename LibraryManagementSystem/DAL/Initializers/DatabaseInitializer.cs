@@ -35,7 +35,7 @@ namespace LibraryManagementSystem.DAL.Initializers
                     Title = "My CD",
                     PublicationYear = "2011",
                     Author = "Remix Music Inc.",
-                    Quantity = 5,
+                    Quantity = 1,
                     ItemType = "CD"
                 },
                 new DVD()
@@ -43,7 +43,7 @@ namespace LibraryManagementSystem.DAL.Initializers
                     Title = "My DVD",
                     PublicationYear = "2012",
                     Author = "Awesome Movie Company",
-                    Quantity = 5,
+                    Quantity = 1,
                     ItemType = "DVD"
                 },
                 new Magazine()
@@ -51,7 +51,7 @@ namespace LibraryManagementSystem.DAL.Initializers
                     Title = "My Magazine",
                     PublicationYear = "2013",
                     Author = "Time Magazine",
-                    Quantity = 5,
+                    Quantity = 1,
                     ItemType = "Magazine"
                 }
             };
