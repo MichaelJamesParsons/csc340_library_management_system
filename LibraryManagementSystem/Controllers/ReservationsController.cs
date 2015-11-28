@@ -51,6 +51,17 @@ namespace LibraryManagementSystem.Controllers
             if (customer == null)
                 return Json(new { status = false, response = "Customer does not exist." });
 
+            //Does the customer already have 5 items checked out?
+            if (customer.Reservations.Count >= 5)
+            {
+                return Json(new
+                {
+                    status = false,
+                    response = "Maximum checkout/reservation limit reached. Please return " +
+                               "an item or cancel a reservation before attempting to check out another item."
+                });
+            }
+
             //Does the customer have overdue items checked out?
             if (_customerRepository.GetTotalFees(customer.Id) > 0)
                 return Json(new { status = false,
@@ -79,17 +90,6 @@ namespace LibraryManagementSystem.Controllers
                 {
                     status = false,
                     response = "This custom has already checked out this item."
-                });
-            }
-
-            //Does the customer already have 5 items checked out?
-            if (customer.Reservations.Count >= 5)
-            {
-                return Json(new
-                {
-                    status = false,
-                    response = "Maximum checkout/reservation limit reached. Please return " +
-                               "an item or cancel a reservation before attempting to check out another item."
                 });
             }
 
