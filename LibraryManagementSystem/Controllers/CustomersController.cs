@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Web.Mvc;
-using LibraryManagementSystem.DAL;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Models.ViewModels;
 using MySql.Data.MySqlClient;
 
 namespace LibraryManagementSystem.Controllers
@@ -14,46 +13,42 @@ namespace LibraryManagementSystem.Controllers
     public class CustomersController : Controller
     {
         private readonly ICustomerRepository _customerRepo;
-        private LibraryDataContext db = new LibraryDataContext();
 
-        public CustomersController(ICustomerRepository customerRepo, IReservationRepository reservationRepository)
+        public CustomersController(ICustomerRepository customerRepository)
         {
-            this._customerRepo = customerRepo;
+            _customerRepo = customerRepository;
         }
+        
 
-        //GET: Customers/Find
         public ActionResult Find()
         {
             return View();
         }
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Find(FormCollection form)
+        public ActionResult Find([Bind(Include = "CustomerNumber")] CustomerFindViewModel viewModel)
         {
-            var customerNumber = Request.Form["customerNumber"];
-            if (customerNumber != null && !customerNumber.Equals("") && Regex.IsMatch(customerNumber, @"^(901)[0-9]{6}$"))
-            {
-                var customer = this._customerRepo.FindCustomerByCustomerNumber(customerNumber);
-                if (customer != null)
-                {
-                    return RedirectToAction("Details", new {customer.Id});
-                }
-                else
-                {
-                    ModelState.AddModelError("customerNumber",
-                        "Sorry, there isn't a customer with that customer number.");
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("customerNumber", "Please enter a valid 9 digit customer number.");
-            }
+            //Check for errors from the model
+            if (!ModelState.IsValid)
+                return View(viewModel);
 
-            return View();
+            //Search for a customer with the given customer number
+            var customer = _customerRepo.FindCustomerByCustomerNumber(viewModel.CustomerNumber);
+
+            //If the customer exists, redirect to the customer's detail page
+            if (customer != null)
+                return RedirectToAction("Details", new { customer.Id });
+
+            //The customer doesn't exist. Send an error to the view
+            ModelState.AddModelError("customerNumber",
+                "Sorry, there isn't a customer with that customer number.");
+
+            return View(viewModel);
         }
 
-        // GET: Customers
+
         public ActionResult Index()
         {
             var customers = _customerRepo.GetAll();
@@ -62,90 +57,85 @@ namespace LibraryManagementSystem.Controllers
             return View(customers);
         }
 
-        // GET: Customers/Details/5
-        public ActionResult Details(int id)
+
+        public ActionResult Details(int? id)
         {
+            //Get the customer's database record and all of their checked out/reserved items
             var customer = _customerRepo.FindBy(s => s.Id == id).Include(s => s.Reservations).Include("Reservations.LibraryItem").FirstOrDefault();
 
+            //Throw 404 if the customer doesn't exist
             if (customer == null)
-            {
                 return HttpNotFound();
-            }
 
-            ViewBag.reservations = customer.Reservations;
-            ViewBag.fullName = customer.GetFullName();
+            @ViewBag.LateFee = _customerRepo.GetTotalFees(customer.Id);
+
             return View(customer);
         }
 
-        // GET: Customers/Create
+        
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Customers/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,CustomerNumber,FirstName,LastName,Email")] Customer customer)
         {
-            if (ModelState.IsValid)
+            //Check for errors from the model
+            if (!ModelState.IsValid)
+                return View(customer);
+
+            try
             {
-                try
-                {
-                    _customerRepo.Add(customer);
-                    _customerRepo.Save();
-                    return RedirectToAction("Index");
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError(string.Empty, "Something went wrong.");
-                }
+                //Attempt to save the new customer object to the database
+                _customerRepo.Add(customer);
+                _customerRepo.Save();
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Oops! Something went wrong. Please refresh and try again.");
             }
 
             return View(customer);
         }
 
-        // GET: Customers/Edit/5
+        
         public ActionResult Edit(int? id)
         {
-            var customer = this._customerRepo.Find((int) id);
+            var customer = _customerRepo.Find(id);
 
             if (customer == null)
-            {
                 HttpNotFound();
-            }
 
             return View(customer);
-
         }
 
-        // POST: Customers/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,CustomerNumber,FirstName,LastName,Email")] Customer customer)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return View(customer);
+
+            try
             {
-                try
-                {
-                    _customerRepo.Edit(customer);
-                    _customerRepo.Save();
-                    return RedirectToAction("Index");
-                }
-                catch (Exception)
-                {
-                    ModelState.AddModelError(string.Empty, "Something went wrong.");
-                }
+                _customerRepo.Edit(customer);
+                _customerRepo.Save();
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Oops! Something went wrong.");
             }
 
             return View(customer);
         }
 
-        // GET: Customers/Delete/5
+        
         public ActionResult Delete(int id)
         {
             var customer = _customerRepo.Find(id);
@@ -165,7 +155,6 @@ namespace LibraryManagementSystem.Controllers
             {
                 try
                 {
-                    //$_POST["id"] == Request.Form["id"]
                     var id = int.Parse(Request.Form["id"]);
                     var customer = _customerRepo.Find(id);
                     _customerRepo.Delete(customer);
@@ -173,7 +162,8 @@ namespace LibraryManagementSystem.Controllers
                 }
                 catch (MySqlException e)
                 {
-                    //1451 == Foreign key constraint error (Customer has items reserved / checked out
+                    //1451 == MySQL Foreign key constraint error 
+                    //              (Customer has items reserved / checked out)
                     if (e.Number == 1451)
                     {
                         return Json(new
@@ -183,7 +173,8 @@ namespace LibraryManagementSystem.Controllers
                                             "all items and cancel all reservations before this account may be deleted."
                         });
                     }
-
+                    //If the error isn't from a foreign key constraint,
+                    //throw error to the generic error message.
                     throw;
                 }
             }
@@ -205,51 +196,47 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
-        // POST: Customers/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
             var customer = _customerRepo.Find(id);
 
-            if (customer != null)
-            {
-                try
-                {
-                    _customerRepo.Delete(customer);
-                    _customerRepo.Save();
-                }
-                catch (MySqlException e)
-                {
-                    if (e.Number == 1451)
-                    {
-                        ModelState.AddModelError(String.Empty,
-                            "Checked out/reserved items found. This customer must return " +
-                            "all items and cancel all reservations before this account may be deleted.");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(String.Empty,
-                            "Oops! Something went wrong. Please refresh and try again.");
-                    }
-                }
+            if (customer == null)
+                return RedirectToAction("Index");
 
-                if (!ModelState.IsValid)
+            try
+            {
+                _customerRepo.Delete(customer);
+                _customerRepo.Save();
+            }
+            catch (MySqlException e)
+            {
+                if (e.Number == 1451)
                 {
-                    return View("Index");
+                    ModelState.AddModelError(string.Empty,
+                        "Checked out/reserved items found. This customer must return " +
+                        "all items and cancel all reservations before this account may be deleted.");
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty,
+                        "Oops! Something went wrong. Please refresh and try again.");
                 }
             }
 
             return RedirectToAction("Index");
         }
 
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _customerRepo.Dispose();
             }
-            base.Dispose(disposing);
+            _customerRepo.Dispose(disposing);
         }
     }
 }

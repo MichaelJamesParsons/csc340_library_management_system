@@ -22,6 +22,7 @@ namespace LibraryManagementSystem.Models
             MinLength(2, ErrorMessage = "Your last name must contain at least 2 characters.")]
         public string LastName { get; set; }
 
+        [MaxLength(100, ErrorMessage = "Email address is too long (must contain less than 100 characters)")]
         [Index("LibrarianEmailIndex", 1, IsUnique = true)]
         public string Email { get; set; }
     }

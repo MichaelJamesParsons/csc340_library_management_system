@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Web.Mvc;
-using LibraryManagementSystem.DAL;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
-using LibraryManagementSystem.Models.ViewModels;
 
 namespace LibraryManagementSystem.Controllers
 {
     [Authorize]
     public class ReservationsController : Controller
     {
-        private readonly LibraryDataContext _db = new LibraryDataContext();
         private readonly IReservationRepository _reservationRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly ILibraryItemRepository _libraryItemRepository;
@@ -21,20 +17,20 @@ namespace LibraryManagementSystem.Controllers
         public ReservationsController(IReservationRepository reservationRepository, 
             ICustomerRepository customerRepository, ILibraryItemRepository libraryItemRepository)
         {
-            this._reservationRepository = reservationRepository;
-            this._customerRepository = customerRepository;
-            this._libraryItemRepository = libraryItemRepository;
+            _reservationRepository = reservationRepository;
+            _customerRepository = customerRepository;
+            _libraryItemRepository = libraryItemRepository;
         }
 
 
-        // GET: Reservations
+        
         public ActionResult Index()
         {
-            return View(_db.Reservations.ToList());
+            return View(_reservationRepository.GetAll());
         }
 
-        // GET: Reservations/Details/5
-        public ActionResult Details(int? id)
+        
+        /*public ActionResult Details(int? id)
         {
             if (id == null)
             {
@@ -46,24 +42,8 @@ namespace LibraryManagementSystem.Controllers
                 return HttpNotFound();
             }
             return View(reservation);
-        }
+        }*/
 
-        // GET: Reservations/Create
-        public ActionResult Create([Bind(Include = "CustomerNumber,ItemId")]AddReservationViewModel viewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                /*db.Entry(reservation).State = EntityState.Modified;
-                db.SaveChanges();*/
-                //return RedirectToAction("Index");
-            }
-            /*if (customerNumber != null)
-            {
-                ViewBag.customer = Customer.FindByCustomerNumber(customerNumber);
-            }*/
-
-            return View();
-        }
 
         [HttpPost]
         public JsonResult AjaxCreate()
@@ -90,24 +70,21 @@ namespace LibraryManagementSystem.Controllers
             var customer = _customerRepository.FindBy(s => s.Id == customerId).Include(s => s.Reservations).FirstOrDefault();
             var item = _libraryItemRepository.Find(itemId);
 
+            //Does the customer exist?
             if (customer == null)
-            {
-                return Json(new
-                {
-                    status = false,
-                    response = "Customer does not exist."
-                });
-            }
+                return Json(new { status = false, response = "Customer does not exist." });
 
+            //Does the customer have overdue items checked out?
+            if (_customerRepository.GetTotalFees(customer.Id) > 0)
+                return Json(new { status = false,
+                    response = "This customer has overdue items checked out. The items must be returned and " +
+                               "paid off before this customer may checkout another item." });
+
+            //Does the library item exist?
             if (item == null)
-            {
-                return Json(new
-                {
-                    status = false,
-                    response = "Item does not exist."
-                });
-            }
+                return Json(new { status = false, response = "Item does not exist." });
 
+            //Is the library item allowed to be checked out?
             if (!item.CanCheckOut)
             {
                 return Json(new
@@ -117,8 +94,9 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
             
-            if (_reservationRepository.FindBy(i => i.LibraryItem_Id == item.Id)
-                                        .FirstOrDefault(c => c.Customer_Id == customer.Id) != null)
+            //Has the customer already checked out this item?
+            if (_reservationRepository.FindBy(i => i.LibraryItemId == item.Id)
+                                        .FirstOrDefault(c => c.CustomerId == customer.Id) != null)
             {
                 return Json(new
                 {
@@ -127,6 +105,7 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Does the customer already have 5 items checked out?
             if (customer.Reservations.Count >= 5)
             {
                 return Json(new
@@ -137,6 +116,7 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Are there any more copies of the library item available to check out?
             if (item.Quantity - _reservationRepository.CountItemReservations(item) == 0)
             {
                 return Json(new
@@ -146,13 +126,15 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Create the new reservation
             var reservation = new Reservation
             {
                 CheckOutDate = DateTime.Today,
-                Customer_Id =  customer.Id,
-                LibraryItem_Id = item.Id
+                CustomerId =  customer.Id,
+                LibraryItemId = item.Id
             };
 
+            //Save the reservation
             _reservationRepository.Add(reservation);
             _reservationRepository.Save();
             _reservationRepository.ReloadRepository(reservation);
@@ -180,14 +162,15 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
+
         [HttpPost]
         public JsonResult Details()
         {
-            Int32 id;
+            int id;
 
             try
             {
-                id = Int32.Parse(Request.Form["reservation_id"]);
+                id = int.Parse(Request.Form["reservation_id"]);
             }
             catch (Exception)
             {
@@ -199,19 +182,15 @@ namespace LibraryManagementSystem.Controllers
             }
 
             var reservation = _reservationRepository.FindBy(i => i.Id == id)
-                                                        .Select(e => new
-                                                        {
-                                                            e,
-                                                            ItemId = e.LibraryItem.Id
-                                                        })
-                                                        .FirstOrDefault();
+                                .Select(e => new{ e,ItemId = e.LibraryItem.Id })
+                                .FirstOrDefault();
 
             if (reservation == null)
             {
                 return Json(new
                 {
                     status = false,
-                    response = "Oops! Something went wrong. Please refresh and try again."
+                    response = "Sorry, that reservation no longer exists."
                 });
             }
 
@@ -236,10 +215,8 @@ namespace LibraryManagementSystem.Controllers
             });
         }
 
-        // POST: Reservations/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,CustomerId,IsReserved")] Reservation reservation, string customerNumber)
         {
@@ -258,10 +235,10 @@ namespace LibraryManagementSystem.Controllers
             }
 
             return View(reservation);
-        }
+        }*/
 
         // GET: Reservations/Edit/5
-        public ActionResult Edit(int? id)
+        /*public ActionResult Edit(int? id)
         {
             if (id == null)
             {
@@ -273,12 +250,12 @@ namespace LibraryManagementSystem.Controllers
                 return HttpNotFound();
             }
             return View(reservation);
-        }
+        }*/
 
         // POST: Reservations/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
+        /*[HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,IsReserved,CheckOutDate")] Reservation reservation)
         {
@@ -289,10 +266,10 @@ namespace LibraryManagementSystem.Controllers
                 return RedirectToAction("Index");
             }
             return View(reservation);
-        }
+        }*/
 
         // GET: Reservations/Delete/5
-        public ActionResult Delete(int? id)
+        /*public ActionResult Delete(int? id)
         {
             if (id == null)
             {
@@ -304,7 +281,7 @@ namespace LibraryManagementSystem.Controllers
                 return HttpNotFound();
             }
             return View(reservation);
-        }
+        }*/
 
         [HttpPost]
         public JsonResult AjaxDelete()
@@ -333,7 +310,7 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // POST: Reservations/Delete/5
-        [HttpPost, ActionName("Delete")]
+        /*[HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
@@ -341,15 +318,15 @@ namespace LibraryManagementSystem.Controllers
             _db.Reservations.Remove(reservation);
             _db.SaveChanges();
             return RedirectToAction("Index");
-        }
+        }*/
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _db.Dispose();
+                _libraryItemRepository.Dispose();
             }
-            base.Dispose(disposing);
+            _libraryItemRepository.Dispose(disposing);
         }
     }
 }

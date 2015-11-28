@@ -11,9 +11,9 @@ namespace LibraryManagementSystem
 
             /** Customer Items **/
             routes.MapRoute(
-                name: "Reservation",
-                url: "library/reservations/{action}/{id}",
-                defaults: new
+                "Reservation",
+                "library/reservations/{action}/{id}",
+                new
                 {
                     controller = "Reservations",
                     action = "Index",
@@ -23,42 +23,50 @@ namespace LibraryManagementSystem
 
             /** Library Items **/
             routes.MapRoute(
-                name: "LibraryItem",
-                url: "library/index",
-                defaults: new { controller = "LibraryItems", action = "Index" }
+                "LibraryItem",
+                "library/index",
+                new { controller = "LibraryItems", action = "Index" }
+            );
+            
+            /** Library Item Search **/
+            routes.MapRoute(
+                "LibraryItemSearch",
+                "library/search",
+                new { controller = "LibraryItems", action = "Search" }
             );
 
             /** Books **/
             routes.MapRoute(
-                name: "Book",
-                url: "library/book/{action}/{id}",
-                defaults: new { controller = "Books", action = "Index", id = UrlParameter.Optional }
+                "Book",
+                "library/book/{action}/{id}",
+                new { controller = "Books", action = "Index", id = UrlParameter.Optional },
+                new { action = @"Index|Edit|Create|Details" }
             );
 
             routes.MapRoute(
-                name: "LibraryItemActions",
-                url: "library/{type}/{action}/{id}",
-                defaults: new { controller = "LibraryItems", id = UrlParameter.Optional }
+                "LibraryItemActions",
+                "library/{type}/{action}/{id}",
+                new { controller = "LibraryItems", id = UrlParameter.Optional }
             );
 
             /** Customers **/
             routes.MapRoute(
-                name: "Customer",
-                url: "customers/{action}/{id}",
-                defaults: new { controller = "Customers", action = "Index", id = UrlParameter.Optional }
+                "Customer",
+                "customers/{action}/{id}",
+                new { controller = "Customers", action = "Index", id = UrlParameter.Optional }
             );
 
             /** Librarian **/
             routes.MapRoute(
-                name: "Librarian",
-                url: "librarian/{action}/{id}",
-                defaults: new { controller = "Librarians", action = "Index", id = UrlParameter.Optional }
+                "Librarian",
+                "librarian/{action}/{id}",
+                new { controller = "Librarians", action = "Index", id = UrlParameter.Optional }
             );
 
             routes.MapRoute(
-                name: "Default",
-                url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                "Default",
+                "{controller}/{action}/{id}",
+                new { controller = "Home", action = "Index", id = UrlParameter.Optional }
             );
         }
     }

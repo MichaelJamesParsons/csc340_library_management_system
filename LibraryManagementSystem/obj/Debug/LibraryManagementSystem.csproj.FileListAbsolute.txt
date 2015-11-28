@@ -99,5 +99,3 @@ C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementS
 C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementSystem\LibraryManagementSystem\bin\Ninject.Web.Mvc.xml
 C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\LibraryManagementSystem.Migrations.Init.resources
 C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\LibraryManagementSystem.csproj.GenerateResource.Cache
-C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\LibraryManagementSystem.Migrations.AddLibraryItemType.resources
-C:\Users\mjayp\OneDrive\Documents\Visual Studio 2015\Projects\LibraryManagementSystem\LibraryManagementSystem\obj\Debug\LibraryManagementSystem.Migrations.RemoveUsernameFromLibrarian.resources

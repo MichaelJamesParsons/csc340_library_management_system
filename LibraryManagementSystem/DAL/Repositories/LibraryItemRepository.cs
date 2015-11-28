@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Data.Entity;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web.Services.Description;
 using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
 
@@ -21,7 +17,7 @@ namespace LibraryManagementSystem.DAL.Repositories
                         results = FindBy(x => x.Title.Contains(query));
                         break;
                     case "PublicationYear":
-                        results = FindBy(x => x.PublicationYear.Year.ToString().Equals(query));
+                        results = FindBy(x => x.PublicationYear.Equals(query));
                         break;
                     case "Author":
                         results = FindBy(x => x.Author.Contains(query));

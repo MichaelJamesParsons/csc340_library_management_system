@@ -6,57 +6,52 @@ using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.DAL.Repositories
 {
-    public abstract class GenericRepository<C, T> :
-        IGenericRepository<T> where T : class, IModelKey where C : DbContext, new()
+    public abstract class GenericRepository<TC, T> :
+        IGenericRepository<T> where T : class, IModelKey where TC : DbContext, IDisposable, new()
     {
-        private C _entities = new C();
-
-        protected C Context
-        {
-            get { return _entities; }
-            set { _entities = value; }
-        }
+        private bool _disposed;
+        protected TC Context { get; set; } = new TC();
 
         public virtual IQueryable<T> GetAll()
         {
-            return _entities.Set<T>();
+            return Context.Set<T>();
         }
         
         public IQueryable<T> FindBy(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
         {
-            return _entities.Set<T>().Where(predicate);
+            return Context.Set<T>().Where(predicate);
         }
 
-        public virtual T Find(int id)
+        public virtual T Find(int? id)
         {
-            return _entities.Set<T>().FirstOrDefault(x => x.Id == id);
+            return (id == null) ? null : Context.Set<T>().FirstOrDefault(x => x.Id == id);
         }
 
         public virtual void Add(T entity)
         {
-            _entities.Set<T>().Add(entity);
+            Context.Set<T>().Add(entity);
         }
 
         public virtual void Delete(T entity)
         {
-            _entities.Set<T>().Remove(entity);
+            Context.Set<T>().Remove(entity);
         }
 
         public virtual void Edit(T entity)
         {
-            _entities.Entry(entity).State = EntityState.Modified;
+            Context.Entry(entity).State = EntityState.Modified;
         }
 
         public virtual void Save()
         {
             try
             {
-                _entities.SaveChanges();
+                Context.SaveChanges();
             }
             catch (Exception e)
             {
                 while (e.InnerException != null) e = e.InnerException;
-                throw e;
+                throw;
             }
         }
 
@@ -64,5 +59,21 @@ namespace LibraryManagementSystem.DAL.Repositories
         {
             Context.Entry(entity).GetDatabaseValues();
         }
+
+        public virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                Context.Dispose();
+            }
+            _disposed = true;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
     }
 }

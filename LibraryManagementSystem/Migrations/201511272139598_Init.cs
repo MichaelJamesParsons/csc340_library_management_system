@@ -15,7 +15,7 @@ namespace LibraryManagementSystem.Migrations
                         CustomerNumber = c.String(nullable: false, maxLength: 9, storeType: "nvarchar"),
                         FirstName = c.String(nullable: false, maxLength: 30, storeType: "nvarchar"),
                         LastName = c.String(nullable: false, maxLength: 30, storeType: "nvarchar"),
-                        Email = c.String(nullable: false, maxLength: 100, storeType: "nvarchar"),
+                        Email = c.String(nullable: false, unicode: false),
                     })
                 .PrimaryKey(t => t.Id)
                 .Index(t => t.CustomerNumber, unique: true, name: "LibrarianUsernameIndex");
@@ -25,28 +25,27 @@ namespace LibraryManagementSystem.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Customer_Id = c.Int(nullable: false),
-                        LibraryItem_Id = c.Int(nullable: false),
+                        CustomerId = c.Int(nullable: false),
+                        LibraryItemId = c.Int(nullable: false),
                         IsReserved = c.Boolean(nullable: false),
                         CheckOutDate = c.DateTime(nullable: false, precision: 0),
                     })
                 .PrimaryKey(t => t.Id)
-                .ForeignKey("dbo.LibraryItems", t => t.LibraryItem_Id, cascadeDelete: true)
-                .ForeignKey("dbo.Customers", t => t.Customer_Id, cascadeDelete: true)
-                .Index(t => t.Customer_Id)
-                .Index(t => t.LibraryItem_Id);
+                .ForeignKey("dbo.LibraryItems", t => t.LibraryItemId, cascadeDelete: true)
+                .ForeignKey("dbo.Customers", t => t.CustomerId, cascadeDelete: true)
+                .Index(t => t.CustomerId)
+                .Index(t => t.LibraryItemId);
             
             CreateTable(
                 "dbo.LibraryItems",
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Title = c.String(unicode: false),
-                        PublicationYear = c.DateTime(nullable: false, precision: 0),
-                        Author = c.String(unicode: false),
+                        Title = c.String(nullable: false, unicode: false),
+                        PublicationYear = c.String(unicode: false),
+                        Author = c.String(nullable: false, unicode: false),
                         Quantity = c.Int(nullable: false),
-                        ItemType = c.String(unicode: false),
-                        CanCheckOut = c.Boolean(nullable: false),
+                        ItemType = c.String(nullable: false, unicode: false),
                         Isbn = c.String(unicode: false),
                         Discriminator = c.String(nullable: false, maxLength: 128, storeType: "nvarchar"),
                     })
@@ -57,26 +56,23 @@ namespace LibraryManagementSystem.Migrations
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        Username = c.String(nullable: false, maxLength: 50, storeType: "nvarchar"),
                         Password = c.String(nullable: false, unicode: false),
                         FirstName = c.String(nullable: false, maxLength: 30, storeType: "nvarchar"),
                         LastName = c.String(nullable: false, maxLength: 30, storeType: "nvarchar"),
-                        Email = c.String(nullable: false, maxLength: 100, storeType: "nvarchar"),
+                        Email = c.String(maxLength: 100, storeType: "nvarchar"),
                     })
                 .PrimaryKey(t => t.Id)
-                .Index(t => t.Username, unique: true, name: "LibrarianUsernameIndex")
                 .Index(t => t.Email, unique: true, name: "LibrarianEmailIndex");
             
         }
         
         public override void Down()
         {
-            DropForeignKey("dbo.Reservations", "Customer_Id", "dbo.Customers");
-            DropForeignKey("dbo.Reservations", "LibraryItem_Id", "dbo.LibraryItems");
+            DropForeignKey("dbo.Reservations", "CustomerId", "dbo.Customers");
+            DropForeignKey("dbo.Reservations", "LibraryItemId", "dbo.LibraryItems");
             DropIndex("dbo.Librarians", "LibrarianEmailIndex");
-            DropIndex("dbo.Librarians", "LibrarianUsernameIndex");
-            DropIndex("dbo.Reservations", new[] { "LibraryItem_Id" });
-            DropIndex("dbo.Reservations", new[] { "Customer_Id" });
+            DropIndex("dbo.Reservations", new[] { "LibraryItemId" });
+            DropIndex("dbo.Reservations", new[] { "CustomerId" });
             DropIndex("dbo.Customers", "LibrarianUsernameIndex");
             DropTable("dbo.Librarians");
             DropTable("dbo.LibraryItems");

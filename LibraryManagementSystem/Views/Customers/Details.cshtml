@@ -1,5 +1,5 @@
 ﻿@using LibraryManagementSystem.Models
-@model LibraryManagementSystem.Models.Customer
+@model Customer
 
 @{
     ViewBag.Title = "Details";
@@ -7,7 +7,7 @@
 
 <div class="row">
     <div class="col-sm-8">
-        <h1>@ViewBag.FullName</h1>
+        <h1>@Model.GetFullName()</h1>
         <p>@Html.DisplayFor(model => model.Email)</p>
     </div>
     <div class="col-sm-4">

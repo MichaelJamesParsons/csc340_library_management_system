@@ -5,17 +5,15 @@ using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.Models
 {
-    public class Reservation : BaseModel, IModelKey
+    public class Reservation : IModelKey
     {
         public int Id { get; set; }
         
-        public int Customer_Id { get; set; }
+        public int CustomerId { get; set; }
         
-        //public Customer Customer { get; set; }
+        public int LibraryItemId { get; set; }
         
-        public int LibraryItem_Id { get; set; }
-        
-        [ForeignKey("LibraryItem_Id")]
+        [ForeignKey("LibraryItemId")]
         public LibraryItem LibraryItem { get; set; }
 
         [DisplayName("Reserve")]
@@ -38,12 +36,7 @@ namespace LibraryManagementSystem.Models
             var currentDate = DateTime.Today.Date;
             var dueDate = DateTime.Parse(this.GetDueDate());
 
-            if (currentDate > dueDate)
-            {
-                return (currentDate - dueDate).TotalDays;
-            }
-
-            return 0;
+            return currentDate > dueDate ? (currentDate - dueDate).TotalDays : 0;
         }
     }
 }

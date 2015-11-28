@@ -210,6 +210,7 @@
     <Compile Include="Controllers\LibraryItemsController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ReservationsController.cs" />
+    <Compile Include="DAL\Initializers\DatabaseInitializer.cs" />
     <Compile Include="DAL\Interfaces\ICustomerRepository.cs" />
     <Compile Include="DAL\Interfaces\IGenericRepository.cs" />
     <Compile Include="DAL\Interfaces\ILibrarianRepository.cs" />
@@ -224,30 +225,26 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Helpers\AlertHelper.cs" />
-    <Compile Include="Migrations\201511200204308_Init.cs" />
-    <Compile Include="Migrations\201511200204308_Init.Designer.cs">
-      <DependentUpon>201511200204308_Init.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201511200355380_AddLibraryItemType.cs" />
-    <Compile Include="Migrations\201511200355380_AddLibraryItemType.Designer.cs">
-      <DependentUpon>201511200355380_AddLibraryItemType.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201511202029010_RemoveUsernameFromLibrarian.cs" />
-    <Compile Include="Migrations\201511202029010_RemoveUsernameFromLibrarian.Designer.cs">
-      <DependentUpon>201511202029010_RemoveUsernameFromLibrarian.cs</DependentUpon>
+    <Compile Include="Migrations\201511272139598_Init.cs" />
+    <Compile Include="Migrations\201511272139598_Init.Designer.cs">
+      <DependentUpon>201511272139598_Init.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\Book.cs" />
+    <Compile Include="Models\CD.cs" />
     <Compile Include="Models\Customer.cs" />
+    <Compile Include="Models\DVD.cs" />
     <Compile Include="Models\Interfaces\IModelKey.cs" />
+    <Compile Include="Models\Magazine.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\Librarian.cs" />
     <Compile Include="DAL\LibraryDataContext.cs" />
     <Compile Include="Models\LibraryItem.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\ViewModels\BookCreateViewModel.cs" />
+    <Compile Include="Models\ViewModels\CustomerFindViewModel.cs" />
     <Compile Include="Models\ViewModels\LibraryItemsSearchViewModel.cs" />
     <Compile Include="Models\ViewModels\ReservationViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -351,8 +348,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Account\_ExternalLoginsListPartial.cshtml" />
     <Content Include="Views\Account\ConfirmEmail.cshtml" />
@@ -389,14 +384,8 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Migrations\201511200204308_Init.resx">
-      <DependentUpon>201511200204308_Init.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201511200355380_AddLibraryItemType.resx">
-      <DependentUpon>201511200355380_AddLibraryItemType.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201511202029010_RemoveUsernameFromLibrarian.resx">
-      <DependentUpon>201511202029010_RemoveUsernameFromLibrarian.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201511272139598_Init.resx">
+      <DependentUpon>201511272139598_Init.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

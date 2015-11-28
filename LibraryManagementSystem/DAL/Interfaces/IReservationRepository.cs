@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using LibraryManagementSystem.Models;
+﻿using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.DAL.Interfaces
 {

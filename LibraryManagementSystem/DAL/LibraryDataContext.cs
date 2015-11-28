@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
+using LibraryManagementSystem.DAL.Initializers;
 using LibraryManagementSystem.Models;
-using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace LibraryManagementSystem.DAL
 {
@@ -12,13 +12,15 @@ namespace LibraryManagementSystem.DAL
         public virtual DbSet<LibraryItem> LibraryItems { get; set; }
         public virtual DbSet<Reservation> Reservations { get; set; }
 
-        public LibraryDataContext() : base("DefaultConnection") {}
+        public LibraryDataContext() : base("DefaultConnection")
+        {
+            Database.SetInitializer<LibraryDataContext>(new DatabaseInitializer());
+        }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-           // modelBuilder.Entity<IdentityUser>().ToTable("Librarians");
-            modelBuilder.Entity<Customer>().HasMany(x => x.Reservations).WithRequired().HasForeignKey(x => x.Customer_Id);
-            modelBuilder.Entity<LibraryItem>().HasMany(x => x.Reservations).WithRequired().HasForeignKey(x => x.LibraryItem_Id);
+            modelBuilder.Entity<Customer>().HasMany(x => x.Reservations).WithRequired().HasForeignKey(x => x.CustomerId);
+            modelBuilder.Entity<LibraryItem>().HasMany(x => x.Reservations).WithRequired().HasForeignKey(x => x.LibraryItemId);
         }
     }
 }

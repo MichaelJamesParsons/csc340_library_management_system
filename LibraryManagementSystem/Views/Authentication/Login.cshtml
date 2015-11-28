@@ -34,8 +34,8 @@
                             </div>
 
                             <div class="form-group">
-                                @Html.LabelFor(model => model.Password)
                                 @Html.CheckBoxFor(model => model.IsPersistant)
+                                @Html.LabelFor(model => model.IsPersistant)
                             </div>
 
                             <input type="submit" class="btn btn-success btn-block" value="Login"/>

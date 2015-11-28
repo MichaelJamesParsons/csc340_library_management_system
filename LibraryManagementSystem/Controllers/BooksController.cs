@@ -1,7 +1,8 @@
-﻿using System.Data.Entity;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
+using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.Controllers
@@ -9,76 +10,70 @@ namespace LibraryManagementSystem.Controllers
     [Authorize]
     public class BooksController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
+        private readonly ILibraryItemRepository _libraryItemRepository;
 
-        // GET: Books
-        /*public ActionResult Index()
+        public BooksController(ILibraryItemRepository libraryItemRepository)
         {
-            ICollection<LibraryItem> items = db.LibraryItems.ToList();
-            ICollection<Book> books = new List<Book>();
+            _libraryItemRepository = libraryItemRepository;
+        }
 
-            foreach (LibraryItem item in items)
-            {
-                books.Add((Book)item);
-            }
-
-            return View(books.ToList());
-        }*/
-
-        // GET: Books/Details/5
+        
         public ActionResult Details(int? id)
         {
             if (id == null)
-            {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Book book = (Book)db.LibraryItems.Find(id);
+
+            var book = (Book) _libraryItemRepository.Find((int)id);
+
             if (book == null)
-            {
                 return HttpNotFound();
-            }
+
             return View(book);
         }
 
-        // GET: Books/Create
+        
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut,Isbn")] Book book)
+        public ActionResult Create([Bind(Include = "Id,Title,PublicationYear,Author,ItemType,Quantity,CanCheckOut,Isbn")] Book book)
         {
             if (!ModelState.IsValid)
                 return View(book);
-            
-            book.ItemType = "Book";
-            db.LibraryItems.Add(book);
-            db.SaveChanges();
-            return RedirectToAction("Index", "LibraryItems");
+
+            try
+            {
+                book.ItemType = "Book";
+                _libraryItemRepository.Add(book);
+                _libraryItemRepository.Save();
+                return RedirectToAction("Index", "LibraryItems");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Oops! Something went wrong. Please refresh and try again.");
+            }
+
+            return View(book);
         }
 
-        // GET: Books/Edit/5
+        
         public ActionResult Edit(int? id)
         {
             if (id == null)
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-            var book = db.LibraryItems.OfType<Book>().FirstOrDefault(x => x.Id == id);
             
+            var book = _libraryItemRepository.FindBy(x => x.Id == id).OfType<Book>().First();
             if (book == null)
                 return HttpNotFound();
 
             return View(book);
         }
 
-        // POST: Books/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Title,PublicationYear,Author,Quantity,CanCheckOut,Isbn")] Book book)
@@ -86,44 +81,27 @@ namespace LibraryManagementSystem.Controllers
             if (!ModelState.IsValid)
                 return View(book);
 
-            db.Entry(book).State = EntityState.Modified;
-            db.SaveChanges();
-            return RedirectToAction("Index", "LibraryItems");
-        }
+            try
+            {
+                _libraryItemRepository.Edit(book);
+                _libraryItemRepository.Save();
+                return RedirectToAction("Index", "LibraryItems");
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Oops! Something went wrong.");
+            }
 
-        // GET: Books/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Book book = (Book)db.LibraryItems.Find(id);
-            if (book == null)
-            {
-                return HttpNotFound();
-            }
             return View(book);
-        }
-
-        // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Book book = (Book)db.LibraryItems.Find(id);
-            db.LibraryItems.Remove(book);
-            db.SaveChanges();
-            return RedirectToAction("Index", "LibraryItems");
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _libraryItemRepository.Dispose();
             }
-            base.Dispose(disposing);
+            _libraryItemRepository.Dispose(disposing);
         }
     }
 }

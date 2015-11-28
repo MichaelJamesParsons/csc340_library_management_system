@@ -6,7 +6,7 @@ using LibraryManagementSystem.Models.Interfaces;
 
 namespace LibraryManagementSystem.Models
 {
-    public class Customer : BaseModel, IModelKey
+    public class Customer : IModelKey
     {
         public int Id { get; set; }
 
@@ -35,11 +35,6 @@ namespace LibraryManagementSystem.Models
         public string Email { get; set; } 
 
         public ICollection<Reservation> Reservations { get; set; }
-
-        /*public Customer()
-        {
-            this.Reservations = new HashSet<Reservation>();
-        }*/
 
         public string GetFullName()
         {

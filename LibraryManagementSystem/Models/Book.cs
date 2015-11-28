@@ -7,8 +7,6 @@
         public Book()
         {
             this.CanCheckOut = true;
-            Book.Controller = "Books";
-            Book.TableContext = Db.LibraryItems;
         }
     }
 }

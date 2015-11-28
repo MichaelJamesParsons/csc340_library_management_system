@@ -1,114 +1,102 @@
-﻿using System.Data.Entity;
-using System.Linq;
-using System.Net;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
+using LibraryManagementSystem.DAL.Interfaces;
 using LibraryManagementSystem.Models;
+using LibraryManagementSystem.Utilities;
 
 namespace LibraryManagementSystem.Controllers
 {
     [Authorize]
     public class LibrariansController : Controller
     {
-        private ApplicationDbContext db = new ApplicationDbContext();
-
-        // GET: Librarians
-        public ActionResult Index()
+        private readonly ILibrarianRepository _librarianRepository;
+        
+        public LibrariansController(ILibrarianRepository librarianRepository)
         {
-            return View(db.Librarians.ToList());
+            _librarianRepository = librarianRepository;
         }
 
-        // GET: Librarians/Details/5
+        
+        public ActionResult Index()
+        {
+            return View(_librarianRepository.GetAll());
+        }
+
+        
         public ActionResult Details(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Librarian librarian = db.Librarians.Find(id);
+            var librarian = _librarianRepository.Find(id);
             if (librarian == null)
-            {
                 return HttpNotFound();
-            }
+
             return View(librarian);
         }
 
-        // GET: Librarians/Create
+        
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: Librarians/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "Id,Username,Password,FirstName,LastName,Email")] Librarian librarian)
         {
-            if (ModelState.IsValid)
-            {
-                db.Librarians.Add(librarian);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+            if (!ModelState.IsValid)
+                return View(librarian);
 
-            return View(librarian);
+            var password = SHA256Hasher.Create(librarian.Password);
+            librarian.Password = password;
+
+            _librarianRepository.Add(librarian);
+            _librarianRepository.Save();
+
+            return RedirectToAction("Index");
         }
 
-        // GET: Librarians/Edit/5
+        
         public ActionResult Edit(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Librarian librarian = db.Librarians.Find(id);
+            var librarian = _librarianRepository.Find(id);
             if (librarian == null)
-            {
                 return HttpNotFound();
-            }
+
             return View(librarian);
         }
 
-        // POST: Librarians/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "Id,Username,Password,FirstName,LastName,Email")] Librarian librarian)
         {
-            if (ModelState.IsValid)
-            {
-                db.Entry(librarian).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(librarian);
+            if (!ModelState.IsValid)
+                return View(librarian);
+
+            _librarianRepository.Edit(librarian);
+            _librarianRepository.Save();
+
+            return RedirectToAction("Index");
         }
 
-        // GET: Librarians/Delete/5
+        
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Librarian librarian = db.Librarians.Find(id);
+            var librarian = _librarianRepository.Find(id);
             if (librarian == null)
-            {
-                return HttpNotFound();
-            }
+               return HttpNotFound();
+
             return View(librarian);
         }
 
-        // POST: Librarians/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Librarian librarian = db.Librarians.Find(id);
-            db.Librarians.Remove(librarian);
-            db.SaveChanges();
+            var librarian = _librarianRepository.Find(id);
+            _librarianRepository.Delete(librarian);
+            _librarianRepository.Save();
+
             return RedirectToAction("Index");
         }
 
@@ -116,9 +104,9 @@ namespace LibraryManagementSystem.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _librarianRepository.Dispose();
             }
-            base.Dispose(disposing);
+            _librarianRepository.Dispose(disposing);
         }
     }
 }

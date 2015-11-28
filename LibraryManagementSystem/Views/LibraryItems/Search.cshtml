@@ -15,7 +15,6 @@
             <!-- Select menu -->
             <div class="form-group">
                 <label>Search for</label>
-
                 @Html.DropDownListFor(m => m.ItemType, Model.GetSearchableItemTypesMenu(), "All", new { @class = "form-control input-lg"})
             </div>
             <!-- / select menu-->
@@ -25,18 +24,10 @@
             <div class="form-group">
                 <label>By</label>
                 @Html.DropDownListFor(m => m.FieldName, Model.SearchableFieldsMenu, null, new { @class = "form-control input-lg" })
-                @*<select name="key" class="form-control input-lg">
-                    @foreach (var field in Model.SearchableFields)
-                    {
-                        <option value="@field.Key" @(Model.Key.Equals(field.Key) ? "selected" : "")>
-                            @field.Value
-                        </option>
-                    }
-                </select>*@
             </div>
             <!-- / select menu-->
         </div>
-        <div class="col-xs-12 col-md-8">
+        <div class="col-xs-12 col-sm-12 col-md-8">
             <div class="form-group">
                 <label>Enter title, ISBN, Publication year, etc.</label>
                 <div class="input-group">
@@ -83,7 +74,7 @@
                         <td>@item.Id</td>
                         <td>@item.Title</td>
                         <td>@item.ItemType</td>
-                        <td>@item.GetPublicationYear()</td>
+                        <td>@item.PublicationYear</td>
                         <td>@item.Author</td>
                         <td>@item.Quantity</td>
                     </tr>

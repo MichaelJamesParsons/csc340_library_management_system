@@ -7,19 +7,16 @@
 <div class="item" data-content="item" data-reservation-id="@Model.Id">
     <div class="row">
         <div class="col-xs-6">
-            <p>@Model.LibraryItem.Title</p>
+            <p><b>@Model.LibraryItem.Title</b></p>
         </div>
         <div class="col-xs-6 col-sm-3">
-            @if (@Model.IsReserved)
-            {
-                <p><b>Check out by @Model.GetDueDate()</b></p>
-            }
-            else
-            {
-                <p><b>Return By @Model.GetDueDate()</b></p>
-            }
-
-
+            <p>
+                @(Model.IsReserved ? "Check out" : "Return") by @Model.GetDueDate()
+                @if (Model.CalculateLateFee() > 0)
+                {
+                    <b><span class="text-danger">(Overdue)</span></b>
+                }
+            </p>
         </div>
         <div class="col-xs-12 col-sm-3 text-right">
             <button class="action-btn btn btn-danger"

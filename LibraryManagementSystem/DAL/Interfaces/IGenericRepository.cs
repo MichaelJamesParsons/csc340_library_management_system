@@ -8,11 +8,13 @@ namespace LibraryManagementSystem.DAL.Interfaces
     {
         IQueryable<T> GetAll();
         IQueryable<T> FindBy(Expression<Func<T, bool>> predicate);
-        T Find(int id);
+        T Find(int? id);
         void Add(T entity);
         void Delete(T entity);
         void Edit(T entity);
         void Save();
         void ReloadRepository(T entity);
+        void Dispose(bool disposing);
+        void Dispose();
     }
 }
