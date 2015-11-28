@@ -22,29 +22,6 @@ namespace LibraryManagementSystem.Controllers
             _libraryItemRepository = libraryItemRepository;
         }
 
-
-        
-        public ActionResult Index()
-        {
-            return View(_reservationRepository.GetAll());
-        }
-
-        
-        /*public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Reservation reservation = _db.Reservations.Find(id);
-            if (reservation == null)
-            {
-                return HttpNotFound();
-            }
-            return View(reservation);
-        }*/
-
-
         [HttpPost]
         public JsonResult AjaxCreate()
         {
@@ -216,73 +193,6 @@ namespace LibraryManagementSystem.Controllers
         }
 
 
-        /*[HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,CustomerId,IsReserved")] Reservation reservation, string customerNumber)
-        {
-            if (customerNumber.Length != 9)
-            {
-                ModelState.AddModelError("customerNumber","Invalid Customer Number");
-            }
-
-            if (ModelState.IsValid)
-            {
-                Response.Write(Request.Form + "<br />");
-                Response.Write("---->" + customerNumber);
-                //db.Reservations.Add(reservation);
-                //db.SaveChanges();
-                //return RedirectToAction("Index");
-            }
-
-            return View(reservation);
-        }*/
-
-        // GET: Reservations/Edit/5
-        /*public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Reservation reservation = _db.Reservations.Find(id);
-            if (reservation == null)
-            {
-                return HttpNotFound();
-            }
-            return View(reservation);
-        }*/
-
-        // POST: Reservations/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        /*[HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,IsReserved,CheckOutDate")] Reservation reservation)
-        {
-            if (ModelState.IsValid)
-            {
-                _db.Entry(reservation).State = EntityState.Modified;
-                _db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(reservation);
-        }*/
-
-        // GET: Reservations/Delete/5
-        /*public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Reservation reservation = _db.Reservations.Find(id);
-            if (reservation == null)
-            {
-                return HttpNotFound();
-            }
-            return View(reservation);
-        }*/
-
         [HttpPost]
         public JsonResult AjaxDelete()
         {
@@ -309,16 +219,6 @@ namespace LibraryManagementSystem.Controllers
             }
         }
 
-        // POST: Reservations/Delete/5
-        /*[HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Reservation reservation = _db.Reservations.Find(id);
-            _db.Reservations.Remove(reservation);
-            _db.SaveChanges();
-            return RedirectToAction("Index");
-        }*/
 
         protected override void Dispose(bool disposing)
         {
