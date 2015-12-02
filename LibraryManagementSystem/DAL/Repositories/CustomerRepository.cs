@@ -12,7 +12,6 @@ namespace LibraryManagementSystem.DAL.Repositories
             return FindBy(n => n.CustomerNumber == customerNumber).FirstOrDefault();
         }
 
-
         public int GetTotalFees(int id)
         {
             var oneWeekAgo = DateTime.Now.Subtract(new TimeSpan(7, 0,0,0,0));

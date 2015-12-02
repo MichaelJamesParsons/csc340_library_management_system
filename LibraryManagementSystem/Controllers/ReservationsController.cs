@@ -23,11 +23,13 @@ namespace LibraryManagementSystem.Controllers
         }
 
         [HttpPost]
-        public JsonResult AjaxCreate()
+        public JsonResult CheckOut()
         {
             int customerId;
             int itemId;
             bool isReserved;
+            Customer customer;
+            LibraryItem item;
 
             try
             {
@@ -44,8 +46,7 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
-            var customer = _customerRepository.FindBy(s => s.Id == customerId).Include(s => s.Reservations).FirstOrDefault();
-            var item = _libraryItemRepository.Find(itemId);
+            customer = _customerRepository.FindBy(s => s.Id == customerId).Include(s => s.Reservations).FirstOrDefault();
 
             //Does the customer exist?
             if (customer == null)
@@ -67,6 +68,8 @@ namespace LibraryManagementSystem.Controllers
                 return Json(new { status = false,
                     response = "This customer has overdue items checked out. The items must be returned and " +
                                "paid off before this customer may checkout another item." });
+
+            item = _libraryItemRepository.Find(itemId);
 
             //Does the library item exist?
             if (item == null)
@@ -114,7 +117,6 @@ namespace LibraryManagementSystem.Controllers
             //Save the reservation
             _reservationRepository.Add(reservation);
             _reservationRepository.Save();
-            _reservationRepository.ReloadRepository(reservation);
             
             var action = isReserved ? "check it out" : "return it";
             var responseMessage = $"Item Reserved. You must {action} by {reservation.GetDueDate()}";
@@ -194,7 +196,7 @@ namespace LibraryManagementSystem.Controllers
 
 
         [HttpPost]
-        public JsonResult AjaxDelete()
+        public JsonResult CheckIn()
         {
             try
             {

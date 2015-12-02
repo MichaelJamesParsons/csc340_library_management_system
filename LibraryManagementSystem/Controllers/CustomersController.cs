@@ -139,7 +139,7 @@ namespace LibraryManagementSystem.Controllers
         public ActionResult Delete(int id)
         {
             var customer = _customerRepo.Find(id);
-
+            
             if (customer == null)
             {
                 return HttpNotFound();
@@ -156,7 +156,18 @@ namespace LibraryManagementSystem.Controllers
                 try
                 {
                     var id = int.Parse(Request.Form["id"]);
-                    var customer = _customerRepo.Find(id);
+                    var customer = _customerRepo.FindBy(x => x.Id == id).Include("Reservations").FirstOrDefault();
+
+                    if (customer.Reservations.Count > 0)
+                    {
+                        return Json(new
+                        {
+                            status = false,
+                            response = "Checked out/reserved items found. This customer must return " +
+                                            "all items and cancel all reservations before this account may be deleted."
+                        });
+                    }
+
                     _customerRepo.Delete(customer);
                     _customerRepo.Save();
                 }

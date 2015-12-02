@@ -76,13 +76,13 @@ $(document).ready(function () {
         }
 
         var payload = {
-            "CustomerId": $(this).attr('data-customer-id'),
+            "CustomerId": $(this).attr("data-customer-id"),
             "IsReserved": (reservationIsResvered.prop("checked")) ? true : false,
             "LibraryItemId": reservationItemId.val()
         };
 
         $.ajax({
-            url: '/library/reservations/AjaxCreate',
+            url: "/library/reservations/CheckOut",
             type: "post",
             dataType: "json",
             data: payload,
@@ -190,7 +190,7 @@ $(document).ready(function () {
         var reservationId = $(this).attr("data-reservation-id");
 
         $.ajax({
-            url: "/reservations/AjaxDelete",
+            url: "/reservations/CheckIn",
             type: "post",
             dataType: "json",
             data: { "id": reservationId },

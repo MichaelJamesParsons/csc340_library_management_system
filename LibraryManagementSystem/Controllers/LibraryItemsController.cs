@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using LibraryManagementSystem.DAL.Interfaces;
@@ -126,7 +127,16 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            var libraryItem = _libraryItemRepository.Find(id);
+            var libraryItem = _libraryItemRepository.FindBy(x => x.Id == id).Include("Reservations").FirstOrDefault();
+
+            //When the repository attempts to delete the library item, if the item is null, it will
+            //simply not do anything, so a nullable check is only required here.
+            if (libraryItem != null && libraryItem.Reservations.Count > 0)
+            {
+                ModelState.AddModelError(string.Empty, "This item has been checked out by one or more customers.");
+                return View(libraryItem);
+            }
+
             _libraryItemRepository.Delete(libraryItem);
             _libraryItemRepository.Save();
 
