@@ -7,11 +7,20 @@ using LibraryManagementSystem.Models;
 
 namespace LibraryManagementSystem.Controllers
 {
+    /// <summary>
+    /// Contains the views and handlers for the check-in, check-out, and reserve operations.
+    /// The user must be logged in to access these operations.
+    /// </summary>
     [Authorize]
     public class ReservationsController : Controller
     {
+        //Contains all of the cached Reservation objects
         private readonly IReservationRepository _reservationRepository;
+
+        //Contains all of the cached Customer objects
         private readonly ICustomerRepository _customerRepository;
+
+        //Contains all of the cached LibraryItem objects
         private readonly ILibraryItemRepository _libraryItemRepository;
 
         public ReservationsController(IReservationRepository reservationRepository, 
@@ -22,6 +31,15 @@ namespace LibraryManagementSystem.Controllers
             _libraryItemRepository = libraryItemRepository;
         }
 
+
+        /// <summary>
+        /// Creates an item reservation. The reservation has two states:
+        ///     - checked out
+        ///     - reserved
+        /// The state is determined by the IsReserved property in the Reservation object.
+        /// This method may only be access by an AJAX request.
+        /// </summary>
+        /// <returns>JsonResult</returns>
         [HttpPost]
         public JsonResult CheckOut()
         {
@@ -33,12 +51,19 @@ namespace LibraryManagementSystem.Controllers
 
             try
             {
+                //Get the submitted customer ID
                 customerId = int.Parse(Request.Form["CustomerId"]);
+
+                //Get the submitted item ID
                 itemId = int.Parse(Request.Form["LibraryItemId"]);
+
+                //Get the submitted reservation state
                 isReserved = bool.Parse(Request.Form["IsReserved"]);
             }
             catch (Exception)
             {
+                //If the parsing of any of the data above fails, then the data is not valid.
+                //Throw an error to let the user know.
                 return Json(new
                 {
                     status = false,
@@ -46,13 +71,14 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Fetch the customer by ID from the repository. Also include the customer's existing reservations
             customer = _customerRepository.FindBy(s => s.Id == customerId).Include(s => s.Reservations).FirstOrDefault();
 
-            //Does the customer exist?
+            //If the customer doesn't exist, throw an error
             if (customer == null)
                 return Json(new { status = false, response = "Customer does not exist." });
 
-            //Does the customer already have 5 items checked out?
+            //If the customer has 5 or more reservations, prevent them from reserving another item
             if (customer.Reservations.Count >= 5)
             {
                 return Json(new
@@ -118,9 +144,12 @@ namespace LibraryManagementSystem.Controllers
             _reservationRepository.Add(reservation);
             _reservationRepository.Save();
             
+            //Formulate a proper response message based on whether the customer is
+            //reserving the item, or checking it out
             var action = isReserved ? "check it out" : "return it";
             var responseMessage = $"Item Reserved. You must {action} by {reservation.GetDueDate()}";
 
+            //Return the response in a JSON string
             return Json(new
             {
                 status = true,
@@ -142,6 +171,11 @@ namespace LibraryManagementSystem.Controllers
         }
 
 
+        /// <summary>
+        /// Get the details of a reservation.
+        /// This method may only be accessed by an AJAX request.
+        /// </summary>
+        /// <returns>JsonResult</returns>
         [HttpPost]
         public JsonResult Details()
         {
@@ -149,10 +183,13 @@ namespace LibraryManagementSystem.Controllers
 
             try
             {
+                //Get the submitted reservation ID
                 id = int.Parse(Request.Form["reservation_id"]);
             }
             catch (Exception)
             {
+                //If the parsing of the reservation ID fails, then the ID must be invalid.
+                //Throw an error to the user.
                 return Json(new
                 {
                     status = false,
@@ -160,10 +197,12 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Fetch the reservation from the repository and include the library item information with it
             var reservation = _reservationRepository.FindBy(i => i.Id == id)
                                 .Select(e => new{ e,ItemId = e.LibraryItem.Id })
                                 .FirstOrDefault();
 
+            //If the reservation isn't found, send an error to the user
             if (reservation == null)
             {
                 return Json(new
@@ -173,8 +212,10 @@ namespace LibraryManagementSystem.Controllers
                 });
             }
 
+            //Fetch the libary item from the repository
             var reservedItem = _libraryItemRepository.Find(reservation.ItemId);
 
+            //Form and return the JSON response
             return Json(new
             {
                 status = true,
@@ -195,16 +236,29 @@ namespace LibraryManagementSystem.Controllers
         }
 
 
+        /// <summary>
+        /// Check in a library item (In other words, this deletes a reservation object from the system).
+        /// This method may only be accessed by an AJAX request.
+        /// </summary>
+        /// <returns>JsonResult</returns>
         [HttpPost]
         public JsonResult CheckIn()
         {
             try
             {
+                //Get the submitted reservation ID
                 var id = int.Parse(Request.Form["id"]);
+
+                //Fetch the reservation from the repository
                 var reservation = _reservationRepository.Find(id);
+
+                //Delete the reservation from the repository
                 _reservationRepository.Delete(reservation);
+
+                //Save the changes to the repository
                 _reservationRepository.Save();
 
+                //Return a JSON success message
                 return Json(new
                 {
                     status = true,
@@ -213,6 +267,7 @@ namespace LibraryManagementSystem.Controllers
             }
             catch (Exception)
             {
+                //If the parsing of the ID fails, throw an error message to the user
                 return Json(new
                 {
                     status = false,
@@ -222,6 +277,14 @@ namespace LibraryManagementSystem.Controllers
         }
 
 
+        /// <summary>
+        /// Releases loose objects and other unmanaged resources when the controller
+        /// is no longer in use.
+        /// Documentation: https://msdn.microsoft.com/en-us/library/fs2xkftw(v=vs.110).aspx
+        /// </summary>
+        /// <param name="disposing">Indicates whether the method call comes from a 
+        ///             Dispose method (its value is true) or from a finalizer (its value is false).
+        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing)

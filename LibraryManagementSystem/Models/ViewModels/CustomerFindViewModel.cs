@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LibraryManagementSystem.Models.ViewModels
 {
+    /// <summary>
+    /// Contains the fields required to search for a customer by CustomerNumber.
+    /// </summary>
     public class CustomerFindViewModel
     {
         [Required]

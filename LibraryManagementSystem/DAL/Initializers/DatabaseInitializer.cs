@@ -5,20 +5,31 @@ using LibraryManagementSystem.Utilities;
 
 namespace LibraryManagementSystem.DAL.Initializers
 {
+    /// <summary>
+    /// This database initializer populates the database with default data when the tables
+    /// are initially migrated.
+    /// </summary>
     public class DatabaseInitializer : CreateDatabaseIfNotExists<LibraryDataContext>
     {
+        /// <summary>
+        /// Seed the default data.
+        /// </summary>
+        /// <param name="db">DbContext object</param>
         protected override void Seed(LibraryDataContext db)
         {
+            //Create a default librarian
             var librarian = new Librarian()
             {
                 FirstName = "Dr.",
                 LastName  = "Chang",
                 Email     = "admin@test.com",
-                Password  = SHA256Hasher.Create("admin123")
+                Password  = Sha256Hasher.Create("admin123")
             };
 
+            //Save the librarian to the database
             db.Librarians.Add(librarian);
 
+            //Create default library items
             var libraryItems = new List<LibraryItem>()
             {
                 new Book()
@@ -56,8 +67,10 @@ namespace LibraryManagementSystem.DAL.Initializers
                 }
             };
 
+            //Save the library items to the database
             db.LibraryItems.AddRange(libraryItems);
 
+            //Create default customers
             var customers = new List<Customer>()
             {
                 new Customer()
@@ -78,13 +91,15 @@ namespace LibraryManagementSystem.DAL.Initializers
                 {
                     FirstName = "Jane",
                     LastName  = "Doe",
-                    Email     = "john_doe@mymail.eku.edu",
+                    Email     = "jane_doe@mymail.eku.edu",
                     CustomerNumber = "901111111"
                 }
             };
 
+            //Save the customers to the database
             db.Customers.AddRange(customers);
 
+            //Complete seeding process
             base.Seed(db);
         }
     }

@@ -1,5 +1,8 @@
 $(document).ready(function () {
+    //Global container for alerts and flash messages
     var pageAlerts = $("#page-alerts");
+
+    //The container of the "Collect fees" message in the reservation model
     var reservationNotice = $("#empty-reservation-notice");
 
     /**
@@ -44,6 +47,7 @@ $(document).ready(function () {
         return makeAlert(error, "danger");
     }
 
+
     /**
      * Removes all alerts on the page.
      */
@@ -63,24 +67,34 @@ $(document).ready(function () {
     var reservationAlerts       = reservationModal.find(".alerts-container");
     var reservationItems        = $("#reserved-items");
 
+    /**
+     * Click handler for checkout/reservation confirm button.
+     * Sends request to server to save a checkout.
+     */
     reservationSubmit.click(function () {
+        //Remove alerts from page
         clearAlerts();
+
+        //If an item ID hasn't been provided, prompt the user
         if(reservationItemId.val() === "") {
             reservationAlerts.html(makeAlertErrors("Please enter an item ID."));
             return false;
         }
 
+        //If the inputted item ID isn't numeric, prompt the user to correct the input
         if (!$.isNumeric(reservationItemId.val())) {
             reservationAlerts.html(makeAlertErrors("Invalid ID: Item ID should be numeric."));
             return false;
         }
 
+        //Prepare payload for ajax request
         var payload = {
             "CustomerId": $(this).attr("data-customer-id"),
             "IsReserved": (reservationIsResvered.prop("checked")) ? true : false,
             "LibraryItemId": reservationItemId.val()
         };
 
+        //Send request to server to create the checkout
         $.ajax({
             url: "/library/reservations/CheckOut",
             type: "post",
@@ -136,14 +150,28 @@ $(document).ready(function () {
     var checkInDueDate = checkInModal.find("[data-content=\"due-date\"]");
     var checkInLateFee = checkInModal.find("[data-content=\"late-fee\"]");
 
+
+    /**
+     * Click handler for "Check In" buttons on customer details page.
+     * Loads reservation data into modal.
+     */
     reservationItems.on("click", "[data-trigger=\"check-in\"]", function () {
+        //Get the reservation ID from the button's attributes
         var reservationId = $(this).attr("data-reservation-id");
+
+        //Store the parent container DOM object
         var lateFeeParent = checkInLateFee.parent();
+
+        //Clear alerts from the page
         clearAlerts();
+
+        //Reset the color of the fee text in the modal
         lateFeeParent.attr("class", "");
 
+        //Show the modal
         checkInModal.modal("show");
 
+        //Send the request to the server
         $.ajax({
             url: "/reservations/Details",
             type: "post",
@@ -151,11 +179,13 @@ $(document).ready(function () {
             data: {
                 "reservation_id": reservationId
             },
-            before: function() {
+            before: function () {
+                //Show loading icon while the request is processing
                 checkInLoader.show();
             },
             success: function(request) {
                 if (request.status) {
+                    //Fill in the modal data
                     checkInItemName.text(request.response.item.title);
                     checkInItemType.text(request.response.item.type);
                     checkInDueDate.text(request.response.dueDate);
@@ -185,10 +215,18 @@ $(document).ready(function () {
     });
 
 
+    /**
+     * Check-In confirmation button click handler.
+     * Removes a reservation/checkout from the system.
+     */
     checkInAction.click(function () {
+        //Remove all alerts on the page
         clearAlerts();
+        
+        //Get the reservation's ID from the button's attributes.
         var reservationId = $(this).attr("data-reservation-id");
 
+        //Send request to the server
         $.ajax({
             url: "/reservations/CheckIn",
             type: "post",
@@ -225,6 +263,7 @@ $(document).ready(function () {
         });
     });
 
+
     /** ****************************************
      *  Delete Customer Modal
      ** ****************************************/
@@ -236,22 +275,49 @@ $(document).ready(function () {
     var customerModalLoader = customerDeleteModal.find(".loader-container");
     var customerNameField = customerDeleteModal.find("[data-content=\"customer-name\"]");
 
-    customerDeleteTrigger.click(function() {
+
+    /**
+     * Click handler for the "Delete" button on the customer listing page.
+     * Displays a confirmation modal so the user may confirm that they want to delete the customer.
+     */
+    customerDeleteTrigger.click(function () {
+        //Store the customer's ID
         var customerId = $(this).attr("data-customer-id");
+
+        //Store the customer's name
         var customerName = $(this).attr("data-customer-name");
 
+        //Hide alerts on the page
         clearAlerts();
+
+        //Show the modal
         customerDeleteModal.modal("show");
+
+        //Set the value of the modal's customer-id input to the customer's ID
         customerDeleteConfirm.attr("data-customer-id", customerId);
+
+        //Place the customer's name in the modal
         customerNameField.text(customerName);
+
+        //Hide the loading icon
         customerModalLoader.fadeOut(1000);
         return false;
     });
 
-    customerDeleteConfirm.click(function() {
+
+    /**
+     * Click handler for "Confirm Delete" button in the delete customer modal.
+     * Sends a request to the server to delete the give customer.
+     */
+    customerDeleteConfirm.click(function () {
+        //Store the customer's ID
         var customerId = $(this).attr("data-customer-id");
+        
+        //Store the DOM element of the row that contains the custoemr's information in the table.
+        //This will be used to remove the customer's record from the GUI if the deletion is successful.
         var recordRow = $("[data-content=\"customer\"][data-customer-id=\"" + customerId + "\"]");
 
+        //Send the request to the server
         $.ajax({
             url: "/customers/AjaxDelete",
             type: "post",

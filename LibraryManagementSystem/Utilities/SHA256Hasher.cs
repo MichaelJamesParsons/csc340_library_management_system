@@ -1,24 +1,22 @@
-﻿using System.Security.Cryptography;
+﻿using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace LibraryManagementSystem.Utilities
 {
-    public class SHA256Hasher
+    public class Sha256Hasher
     {
+        /// <summary>
+        /// Generates a SHA 256 hash from the given key.
+        /// </summary>
+        /// <param name="key">The string to hash</param>
+        /// <returns>The hashed string.</returns>
         public static string Create(string key)
         {
-            byte[] bytes = Encoding.UTF8.GetBytes(key);
-            SHA256Managed hashstring = new SHA256Managed();
-
-            byte[] hash = hashstring.ComputeHash(bytes);
-            string hashString = string.Empty;
-
-            foreach (byte x in hash)
-            {
-                hashString += $"{x:x2}";
-            }
-
-            return hashString;
+            var bytes = Encoding.UTF8.GetBytes(key);
+            var hashstring = new SHA256Managed();
+            var hash = hashstring.ComputeHash(bytes);
+            return hash.Aggregate(string.Empty, (current, x) => current + $"{x:x2}");
         }
     }
 }
